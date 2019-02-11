@@ -5,6 +5,7 @@
   "depends": [
     "console",
     "maybe",
+    "partial",
     "prelude",
     "web-html"
   ]
