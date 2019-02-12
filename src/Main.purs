@@ -19,7 +19,7 @@ appToHtml :: forall model event. App model event -> HTML
 appToHtml (App component) = component.view component.init
 
 runApp :: forall model event. App model event -> model -> Effect  Unit
-runApp app model = (appToHtml >>> htmlToNode >>> nodeToDom) app
+runApp app model = (appToHtml >>> htmlToNode >>> nodeToDom "main") app
     
 data App model event =  App (Component model event)
 main :: Effect Unit

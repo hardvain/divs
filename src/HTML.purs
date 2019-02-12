@@ -7,7 +7,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
-import Prelude (Unit, bind, pure, unit)
+import Prelude (Unit, bind, pure, unit, (>>=), (>>>))
 import Web.DOM (Text)
 import Web.DOM.Document (Document, createTextNode, createElement, toNonElementParentNode)
 import Web.DOM.Element as Element
@@ -17,36 +17,31 @@ import Web.DOM.Node (appendChild)
 import Web.DOM.NodeType (NodeType(..))
 import Web.DOM.NonElementParentNode (NonElementParentNode, getElementById)
 import Web.DOM.Text as Text
-import Web.HTML (HTMLDocument, Window, window)
-import Web.HTML.HTMLDocument (toDocument)
+import Web.HTML as HTML
+import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.HTMLElement (fromElement, toNode)
-import Web.HTML.Window (document)
+import Web.HTML.Window as Window
 type Attribute = Tuple String String
 
 data VNode = VNode {
     attributes :: Array Attribute,
     tpe :: String,
-    children :: Array Node
+    children :: Array VNode
 }
 
-getCurrentDocument :: Effect Document
-getCurrentDocument = do
-    currentWindow :: Window <- window :: Effect Window
-    currentHTMLDocument <- document currentWindow :: Effect HTMLDocument
-    pure (toDocument currentHTMLDocument)
+document :: Effect Document
+document = do HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
 
-nodeToDom :: VNode -> String -> Effect Unit
-nodeToDom (VNode {attributes, tpe, children}) rootId = do
-  
-  doc <- getCurrentDocument
-  element <- createSpanElement str doc
+nodeToDom :: String -> VNode ->  Effect Unit
+nodeToDom rootId (VNode {attributes, tpe, children})  = do
+  doc <- document
+  element <- createSpanElement "test" doc
   setRootElement element rootId
 
 setRootElement :: Element -> String -> Effect Unit
 setRootElement element rootId = do
-    currentWindow :: Window <- window :: Effect Window
-    currentHTMLDocument <- document currentWindow :: Effect HTMLDocument
-    let doc = toDocument currentHTMLDocument
+    currentWindow  <- HTML.window 
+    doc <- document
     let nepn = toNonElementParentNode doc :: NonElementParentNode
     mayBeRoot <- (getElementById  rootId nepn) :: Effect (Maybe Element )
     let root =  (unsafePartial fromJust mayBeRoot) :: Element
