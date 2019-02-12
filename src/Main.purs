@@ -1,34 +1,19 @@
 module Main where
   
 import HTML
-
+import Component (Component, HTML(..))
 import Effect (Effect)
 import Prelude (Unit, map,(>>>))
 
 
-type Component model event =  { 
-    init :: model
-    , view :: model -> HTML
-    , update:: model -> event -> model
-}
-
-
-data HTML = Text String
-    | Span String
-    | Div (Array HTML)
-    | Anchor String
-    | Bold String
-    | Button HTML
-    | LineBreak
-
-htmlToNode :: HTML -> Node
-htmlToNode (Text str) = Node { attributes: [], type:"", children: []}
-htmlToNode (Span str) = Node { attributes: [], type:"span", children: [(htmlToNode (Text str))]}
-htmlToNode (Div children) = Node { attributes: [], type:"div", children: map htmlToNode children}
-htmlToNode (Anchor str) = Node { attributes: [], type:"a", children: [(htmlToNode (Text str))]}
-htmlToNode (Bold str) = Node { attributes: [], type:"b", children: [(htmlToNode (Text str))]}
-htmlToNode (Button child) = Node { attributes: [], type:"button", children: [htmlToNode child]}
-htmlToNode (LineBreak) = Node { attributes: [], type:"br", children: []}
+htmlToNode :: HTML -> VNode
+htmlToNode (Text str) = VNode { attributes: [], tpe:"", children: []}
+htmlToNode (Span str) = VNode { attributes: [], tpe:"span", children: [(htmlToNode (Text str))]}
+htmlToNode (Div children) = VNode { attributes: [], tpe:"div", children: map htmlToNode children}
+htmlToNode (Anchor str) = VNode { attributes: [], tpe:"a", children: [(htmlToNode (Text str))]}
+htmlToNode (Bold str) = VNode { attributes: [], tpe:"b", children: [(htmlToNode (Text str))]}
+htmlToNode (Button child) = VNode { attributes: [], tpe:"button", children: [htmlToNode child]}
+htmlToNode (LineBreak) = VNode { attributes: [], tpe:"br", children: []}
 
 appToHtml :: forall model event. App model event -> HTML
 appToHtml (App component) = component.view component.init
