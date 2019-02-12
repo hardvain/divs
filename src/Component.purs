@@ -1,5 +1,7 @@
 module Component where
   
+import Effect (Effect)
+import Prelude (Unit)
 
 type Component model event =  { 
     init :: model
@@ -7,10 +9,11 @@ type Component model event =  {
     , update:: model → event → model
 }
 
-data HTML = Text String
-    | Span String
-    | Div (Array HTML)
-    | Anchor String
-    | Bold String
-    | Button HTML
-    | LineBreak
+data HTML = TextTag String
+    | SpanTag String
+    | DivTag (Array HTML)
+    | AnchorTag String
+    | BoldTag String
+    | ButtonTag HTML
+    | LineBreakTag
+

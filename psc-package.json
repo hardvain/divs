@@ -5,6 +5,8 @@
   "depends": [
     "console",
     "maybe",
+    "nullable",
+    "ordered-collections",
     "partial",
     "prelude",
     "web-events",
