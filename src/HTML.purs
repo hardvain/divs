@@ -24,8 +24,8 @@ data Node = Node {
 }
 
 
-render :: Node -> Effect Unit
-render node = do
+nodeToDom :: Node -> Effect Unit
+nodeToDom node = do
     currentWindow :: Window <- window :: Effect Window
     currentHTMLDocument <- document currentWindow :: Effect HTMLDocument
     let doc = toDocument currentHTMLDocument
