@@ -1,29 +1,28 @@
 module HTML where
  
-import Component
 
 import Data.Maybe (Maybe, fromJust)
 import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
-import Prelude (Unit, bind, pure, unit, (>>=), (>>>), ($), void, (>=>))
-import Web.DOM (Text)
+import Prelude (Unit, bind, pure, unit, void, ($), (>>=), (>>>))
+import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Document as Document
-
 import Web.DOM.Element as Element
 import Web.DOM.Internal.Types (Element)
 import Web.DOM.Internal.Types (Node)
-import Web.DOM.Node (appendChild)
-import Web.DOM.NodeType (NodeType(..))
+import Web.DOM.Node as Node
 import Web.DOM.NonElementParentNode (NonElementParentNode, getElementById)
 import Web.DOM.Text as Text
-import Web.DOM.Node as Node
+import Web.Event.Event as Event
+import Web.Event.EventTarget (eventListener)
+import Web.Event.EventTarget as EventTarget
+import Web.Event.Internal.Types (Event)
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.HTMLElement (fromElement, toNode)
 import Web.HTML.Window as Window
-import Unsafe.Coerce (unsafeCoerce)
 
 type Attribute = Tuple String String
 
@@ -60,6 +59,10 @@ setAttribute key value = unsafeCoerce >>> Element.setAttribute key value
 removeAttribute :: String → Node → Effect Unit
 removeAttribute key = unsafeCoerce >>> Element.removeAttribute key
 
+addEventListener :: String → (Event → Effect Unit) → Node → Effect Unit
+addEventListener name handler node = do
+    eventListener <- EventTarget.eventListener handler
+    EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
 
 nodeToDom :: String → VNode →  Effect Unit
 nodeToDom rootId (VNode {attributes, tpe, children})  = do
