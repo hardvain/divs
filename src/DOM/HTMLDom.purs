@@ -1,19 +1,15 @@
-module HTML where
- 
+module HTMLDOM where
 
-import Data.Maybe (Maybe(..), fromJust)
-import Data.Tuple (Tuple)
 import Effect (Effect)
-import Effect.Console (log)
-import Partial.Unsafe (unsafePartial)
-import Prelude (Unit, bind, pure, unit, void, ($), (>>=), (>>>),(>=>), (<>))
+import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple)
+import Prelude (Unit, bind, pure, void, ($), (<>), (>=>), (>>=), (>>>))
 import Data.Show
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Document as Document
 import Web.DOM.Element as Element
-import Web.DOM.Internal.Types (Element, Node)
+import Web.DOM.Internal.Types (Node)
 import Web.DOM.Node as Node
-import Web.DOM.NonElementParentNode (NonElementParentNode, getElementById)
 import Web.DOM.Text as Text
 import Web.DOM.NodeList as NodeList
 import Web.Event.Event as Event
@@ -21,7 +17,6 @@ import Web.Event.EventTarget as EventTarget
 import Web.Event.Internal.Types (Event)
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
-import Web.HTML.HTMLElement (fromElement, toNode)
 import Web.HTML.Window as Window
 import Data.Map (Map, fromFoldable)
 
@@ -94,43 +89,9 @@ h name props children = Element {name, props, children, listeners: []}
 prop :: Array (Tuple String String) → Props
 prop = fromFoldable
 
-with :: ∀  v. VNode  v → Array (EventListener  v) → VNode  v
+with :: ∀ v. VNode  v → Array (EventListener  v) → VNode  v
 with (Element n) listeners = Element $ n {listeners = listeners}
 with n _ = n
 
 text :: ∀ v. String → VNode v
-text t = Text t
-
-nodeToDom :: forall v. String → VNode  v →  Effect Unit
-nodeToDom rootId node  = pure unit
-
-setRootElement :: Node → String → Effect Unit
-setRootElement node rootId = do
-    currentWindow  <- HTML.window 
-    doc <- document
-    let nepn = Document.toNonElementParentNode doc :: NonElementParentNode
-    mayBeRoot <- (getElementById  rootId nepn) :: Effect (Maybe Element )
-    let root =  (unsafePartial fromJust mayBeRoot) :: Element
-    _ <- log "adding element"
-    let rootNode = toNode (unsafePartial fromJust (fromElement root))
-    _ <- Node.appendChild node rootNode
-    pure unit
-
-
-createSpanElement :: String  → Effect Node
-createSpanElement str  = createElement "span" 
-
-createDivElement :: String  → Effect Node
-createDivElement str  = createElement "div" 
-
-createAnchorElement :: String  → Effect Node
-createAnchorElement str  = createElement "a" 
-
-createBoldElement :: String  → Effect Node
-createBoldElement str  = createElement "bold" 
-
-createButtonElement :: String  → Effect Node
-createButtonElement str  = createElement "button" 
-
-createLineBreakElement :: String  → Effect Node
-createLineBreakElement str  = createElement "br" 
+text = Text

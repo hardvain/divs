@@ -9,6 +9,7 @@
     "ordered-collections",
     "partial",
     "prelude",
+    "psci-support",
     "web-events",
     "web-html"
   ]
