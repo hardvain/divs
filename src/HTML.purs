@@ -9,7 +9,8 @@ import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
 import Prelude (Unit, bind, pure, unit, (>>=), (>>>))
 import Web.DOM (Text)
-import Web.DOM.Document (Document, createTextNode, createElement, toNonElementParentNode)
+import Web.DOM.Document as Document
+
 import Web.DOM.Element as Element
 import Web.DOM.Internal.Types (Element)
 import Web.DOM.Internal.Types (Node)
@@ -29,42 +30,44 @@ data VNode = VNode {
     children :: Array VNode
 }
 
-document :: Effect Document
-document = do HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
+document :: Effect Document.Document
+document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
+
+createElement :: String -> Effect Node
+createElement name = document >>= Document.createElement name >>= Element.toNode >>> pure
 
 nodeToDom :: String -> VNode ->  Effect Unit
 nodeToDom rootId (VNode {attributes, tpe, children})  = do
-  doc <- document
-  element <- createSpanElement "test" doc
+  element <- createSpanElement "test" 
   setRootElement element rootId
 
-setRootElement :: Element -> String -> Effect Unit
-setRootElement element rootId = do
+setRootElement :: Node -> String -> Effect Unit
+setRootElement node rootId = do
     currentWindow  <- HTML.window 
     doc <- document
-    let nepn = toNonElementParentNode doc :: NonElementParentNode
+    let nepn = Document.toNonElementParentNode doc :: NonElementParentNode
     mayBeRoot <- (getElementById  rootId nepn) :: Effect (Maybe Element )
     let root =  (unsafePartial fromJust mayBeRoot) :: Element
     _ <- log "adding element"
     let rootNode = toNode (unsafePartial fromJust (fromElement root))
-    _ <- appendChild (toNode (unsafePartial fromJust (fromElement element))) rootNode
+    _ <- appendChild node rootNode
     pure unit
 
 
-createSpanElement :: String -> Document -> Effect Element
-createSpanElement str doc = createElement "span" doc
+createSpanElement :: String  -> Effect Node
+createSpanElement str  = createElement "span" 
 
-createDivElement :: String -> Document -> Effect Element
-createDivElement str doc = createElement "div" doc
+createDivElement :: String  -> Effect Node
+createDivElement str  = createElement "div" 
 
-createAnchorElement :: String -> Document -> Effect Element
-createAnchorElement str doc = createElement "a" doc
+createAnchorElement :: String  -> Effect Node
+createAnchorElement str  = createElement "a" 
 
-createBoldElement :: String -> Document -> Effect Element
-createBoldElement str doc = createElement "bold" doc
+createBoldElement :: String  -> Effect Node
+createBoldElement str  = createElement "bold" 
 
-createButtonElement :: String -> Document -> Effect Element
-createButtonElement str doc = createElement "button" doc
+createButtonElement :: String  -> Effect Node
+createButtonElement str  = createElement "button" 
 
-createLineBreakElement :: String -> Document -> Effect Element
-createLineBreakElement str doc = createElement "br" doc
+createLineBreakElement :: String  -> Effect Node
+createLineBreakElement str  = createElement "br" 
