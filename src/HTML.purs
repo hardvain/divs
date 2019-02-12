@@ -23,7 +23,7 @@ import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.HTMLElement (fromElement, toNode)
 import Web.HTML.Window as Window
-import Data.Map (Map)
+import Data.Map (Map, fromFoldable)
 
 type Attribute = Tuple String String
 
@@ -87,6 +87,19 @@ addEventListener :: String → (Event → Effect Unit) → Node → Effect Unit
 addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
+
+h :: ∀ v. String → Props → Array (VNode v) → VNode v
+h name props children = Element {name, props, children, listeners: []}
+
+prop :: Array (Tuple String String) → Props
+prop = fromFoldable
+
+with :: ∀  v. VNode  v → Array (EventListener  v) → VNode  v
+with (Element n) listeners = Element $ n {listeners = listeners}
+with n _ = n
+
+text :: ∀ v. String → VNode v
+text t = Text t
 
 nodeToDom :: forall v. String → VNode  v →  Effect Unit
 nodeToDom rootId node  = pure unit
