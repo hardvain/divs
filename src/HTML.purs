@@ -7,7 +7,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Console (log)
 import Partial.Unsafe (unsafePartial)
-import Prelude (Unit, bind, pure, unit, (>>=), (>>>))
+import Prelude (Unit, bind, pure, unit, (>>=), (>>>), ($), void, (>=>))
 import Web.DOM (Text)
 import Web.DOM.Document as Document
 
@@ -18,6 +18,7 @@ import Web.DOM.Node (appendChild)
 import Web.DOM.NodeType (NodeType(..))
 import Web.DOM.NonElementParentNode (NonElementParentNode, getElementById)
 import Web.DOM.Text as Text
+import Web.DOM.Node as Node
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.HTMLElement (fromElement, toNode)
@@ -36,6 +37,22 @@ document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
 createElement :: String -> Effect Node
 createElement name = document >>= Document.createElement name >>= Element.toNode >>> pure
 
+createTextNode ::  String → Effect Node
+createTextNode t = document >>= Document.createTextNode t >>= Text.toNode >>> pure
+
+replaceChild ::  Node → Node → Node → Effect Unit
+replaceChild new old parent = void $ Node.replaceChild new old parent
+
+removeChild ::  Node → Node → Effect Unit
+removeChild child parent = void $ Node.removeChild child parent
+
+appendChild ::  Node → Node → Effect Unit
+appendChild child parent = void $ Node.appendChild child parent
+
+
+setTextContent ::  String → Node → Effect Unit
+setTextContent = Node.setTextContent
+
 nodeToDom :: String -> VNode ->  Effect Unit
 nodeToDom rootId (VNode {attributes, tpe, children})  = do
   element <- createSpanElement "test" 
@@ -50,7 +67,7 @@ setRootElement node rootId = do
     let root =  (unsafePartial fromJust mayBeRoot) :: Element
     _ <- log "adding element"
     let rootNode = toNode (unsafePartial fromJust (fromElement root))
-    _ <- appendChild node rootNode
+    _ <- Node.appendChild node rootNode
     pure unit
 
 
