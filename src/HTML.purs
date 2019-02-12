@@ -23,6 +23,8 @@ import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.HTMLElement (fromElement, toNode)
 import Web.HTML.Window as Window
+import Unsafe.Coerce (unsafeCoerce)
+
 type Attribute = Tuple String String
 
 data VNode = VNode {
@@ -34,7 +36,7 @@ data VNode = VNode {
 document :: Effect Document.Document
 document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
 
-createElement :: String -> Effect Node
+createElement :: String → Effect Node
 createElement name = document >>= Document.createElement name >>= Element.toNode >>> pure
 
 createTextNode ::  String → Effect Node
@@ -49,16 +51,22 @@ removeChild child parent = void $ Node.removeChild child parent
 appendChild ::  Node → Node → Effect Unit
 appendChild child parent = void $ Node.appendChild child parent
 
-
 setTextContent ::  String → Node → Effect Unit
 setTextContent = Node.setTextContent
 
-nodeToDom :: String -> VNode ->  Effect Unit
+setAttribute :: String → String → Node → Effect Unit
+setAttribute key value = unsafeCoerce >>> Element.setAttribute key value
+
+removeAttribute :: String → Node → Effect Unit
+removeAttribute key = unsafeCoerce >>> Element.removeAttribute key
+
+
+nodeToDom :: String → VNode →  Effect Unit
 nodeToDom rootId (VNode {attributes, tpe, children})  = do
   element <- createSpanElement "test" 
   setRootElement element rootId
 
-setRootElement :: Node -> String -> Effect Unit
+setRootElement :: Node → String → Effect Unit
 setRootElement node rootId = do
     currentWindow  <- HTML.window 
     doc <- document
@@ -71,20 +79,20 @@ setRootElement node rootId = do
     pure unit
 
 
-createSpanElement :: String  -> Effect Node
+createSpanElement :: String  → Effect Node
 createSpanElement str  = createElement "span" 
 
-createDivElement :: String  -> Effect Node
+createDivElement :: String  → Effect Node
 createDivElement str  = createElement "div" 
 
-createAnchorElement :: String  -> Effect Node
+createAnchorElement :: String  → Effect Node
 createAnchorElement str  = createElement "a" 
 
-createBoldElement :: String  -> Effect Node
+createBoldElement :: String  → Effect Node
 createBoldElement str  = createElement "bold" 
 
-createButtonElement :: String  -> Effect Node
+createButtonElement :: String  → Effect Node
 createButtonElement str  = createElement "button" 
 
-createLineBreakElement :: String  -> Effect Node
+createLineBreakElement :: String  → Effect Node
 createLineBreakElement str  = createElement "br" 

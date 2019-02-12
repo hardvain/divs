@@ -3,8 +3,8 @@ module Component where
 
 type Component model event =  { 
     init :: model
-    , view :: model -> HTML
-    , update:: model -> event -> model
+    , view :: model → HTML
+    , update:: model → event → model
 }
 
 data HTML = Text String
