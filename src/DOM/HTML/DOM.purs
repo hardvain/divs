@@ -1,4 +1,4 @@
-module HTMLDOM where
+module DOM.HTML.DOM where
 
 import Effect (Effect)
 import Data.Maybe (Maybe(..))
@@ -19,25 +19,8 @@ import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.Window as Window
 import Data.Map (Map, fromFoldable)
+import DOM.VirtualDOM
 
-type Attribute = Tuple String String
-
-data EventListener  v = On String (v → Effect Unit)
-
-type Props = Map String String
-
-data VNode v
-  = Element
-    { name :: String
-    , props :: Props
-    , listeners :: Array (EventListener  v)
-    , children :: Array (VNode  v)
-    }
-  | Text String
-
-instance showVNode :: Show (VNode v) where
-  show (Element n) = "<VNode:" <> n.name <> ">"
-  show (Text t) = "\"" <> t <> "\""
       
 document :: Effect Document.Document
 document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
@@ -82,16 +65,3 @@ addEventListener :: String → (Event → Effect Unit) → Node → Effect Unit
 addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
-
-h :: ∀ v. String → Props → Array (VNode v) → VNode v
-h name props children = Element {name, props, children, listeners: []}
-
-prop :: Array (Tuple String String) → Props
-prop = fromFoldable
-
-with :: ∀ v. VNode  v → Array (EventListener  v) → VNode  v
-with (Element n) listeners = Element $ n {listeners = listeners}
-with n _ = n
-
-text :: ∀ v. String → VNode v
-text = Text

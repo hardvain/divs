@@ -3,7 +3,7 @@ module Main where
 import Component (Component, HTML(..))
 import Data.Map (empty)
 import Effect (Effect)
-import DOM.DOM (VNode(..), nodeToDom)
+import DOM.VirtualDOM (VNode(..), nodeToDom)
 import Prelude (Unit, map, (>>>))
 
 htmlToNode :: forall v. HTML → VNode v
