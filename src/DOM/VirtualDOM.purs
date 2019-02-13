@@ -2,28 +2,29 @@ module DOM.VirtualDOM where
  
 import Data.Show
 
-import Data.Foldable (sequence_)
+import Data.Foldable (class Foldable)
+import Data.Foldable as Foldable
 import Data.List ((!!), length, (..))
+import Data.Map (update)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromJust, maybe)
+import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import Effect.Console (log)
-import Partial.Unsafe (unsafePartial)
+import HTML (appendChild, createElement)
 import Prelude (Unit, bind, pure, unit, void, ($), (>>=), (>>>), (>=>), (<>), (/=), map, (<#>), flip, when, (<<<), (>), (-), (<$>))
-import Unsafe.Coerce (unsafeCoerce)
 type Attribute = Tuple String String
 
 data EventListener eventData = On String (eventData → Effect Unit)
 
 type Props = Map.Map String String
 
-data VNode v
+data VNode ev
   = Element
     { name :: String
     , props :: Props
-    , listeners :: Array (EventListener v)
-    , children :: Array (VNode v)
+    , listeners :: Array (EventListener ev)
+    , children :: Array (VNode ev)
     }
   | Text String
 
@@ -31,19 +32,19 @@ instance showVNode :: Show (VNode v) where
   show (Element n) = "<VNode:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
 
-type VDOM v e l =
-  { createElement :: String → Effect e
-  , createElementNS :: String → String → Effect e
-  , createTextNode :: String → Effect e 
-  , replaceChild :: l → l → l → Effect Unit
-  , removeChild :: l → l → Effect Unit
-  , appendChild :: l → l → Effect Unit
-  , childCount :: l → Effect Int
-  , childAt :: Int → l → Effect (Maybe l)
-  , setTextContent :: String → l → Effect Unit
-  , setAttribute :: String → String → l → Effect Unit
-  , removeAttribute :: String → l → Effect Unit
-  , addEventListener :: String → (v → Effect Unit) → l → Effect Unit
+type VDOM ev ef =
+  { createElement :: String → Effect ef
+  , createElementNS :: String → String → Effect ef
+  , createTextNode :: String → Effect ef 
+  , replaceChild :: ef → ef → ef → Effect Unit
+  , removeChild :: ef → ef → Effect Unit
+  , appendChild :: ef → ef → Effect Unit
+  , childCount :: ef → Effect Int
+  , childAt :: Int → ef → Effect (Maybe ef)
+  , setTextContent :: String → ef → Effect Unit
+  , setAttribute :: String → String → ef → Effect Unit
+  , removeAttribute :: String → ef → Effect Unit
+  , addEventListener :: String → (ev → Effect Unit) → ef → Effect Unit
   }
 
 h :: ∀ v. String → Props → Array (VNode v) → VNode v
@@ -59,16 +60,24 @@ with n _ = n
 text :: ∀ v. String → VNode v
 text = Text
 
-createElement :: ∀ e l v. VDOM e l v → VNode e l v → Effect e
-createElement api (Element e) = do
+createElement' :: ∀ ev ef. VDOM ev ef → VNode ev → Effect ef
+createElement' api (Element e) = do
   el ← api.createElement e.name
-  _ <- pure (map (\_ k v → api.setAttribute k v el) unit e.props)
+  _ <- pure (map (\_ k v → api.setAttribute k v el) e.props)
   -- sequence_ $ e.listeners <#> addListener api el
-  _ <- sequence_ $ e.children <#> (createElement api >=> flip api.appendChild el)
+  _ <- Foldable.traverse_ (\listener -> addListener api el listener)  e.listeners
+  _ <- Foldable.traverse_ (\child -> appendChild' api el child) e.children
+  -- _ <- Foldable.sequence_ $ e.children <#> (createElement api >=> flip api.appendChild el)
   pure el
-createElement api (Text t) = api.createTextNode t
+createElement' api (Text t) = api.createTextNode t
 
-addListener :: ∀  v. VDOM  v → l → EventListener  v → Effect e Unit
+appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ef -> Effect ef
+appendChild' api parent child = do
+  createdChild <- createElement' api child
+  _ <- api.appendChild parent createdChild
+  pure createdChild
+
+addListener :: ∀  ev ef. VDOM  ev ef → ef → EventListener  ev → Effect Unit
 addListener api target (On name handler) = api.addEventListener name handler target
 
 changed :: ∀  v. VNode  v → VNode  v → Boolean
@@ -76,10 +85,12 @@ changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
 
-updateProps :: ∀  v e l. VDOM  v e l → l → Props → Props → Effect Unit
-updateProps api target old new =
-  sequence_ (update <$> Map.keys (Map.union old new))
+updateProps :: ∀  ev ef. VDOM  ev ef → ef → Props → Props → Effect Unit
+updateProps api target old new = do
+  let unionArray = Set.toUnfoldable
+  Foldable.traverse_ update (Map.keys (Map.union old new))
   where
+    update :: String -> Effect Unit
     update key =
       case Map.lookup key old, Map.lookup key new of
         Nothing, Just value → api.setAttribute key value target
@@ -87,10 +98,10 @@ updateProps api target old new =
         Just prev, Just next → when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing → pure unit
 
-patch :: ∀  v. VDOM  v → l → Maybe (VNode  v) → Maybe (VNode  v) → Effect e Unit
+patch :: ∀  ev ef. VDOM  ev ef → l → Maybe (VNode  v) → Maybe (VNode  v) → Effect Unit
 patch api target' old' new' = patchIndexed target' old' new' 0
   where
-    patchIndexed :: l → Maybe (VNode  v) → Maybe (VNode  v) → Int → Effect e Unit
+    patchIndexed :: l → Maybe (VNode  v) → Maybe (VNode  v) → Int → Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
       el ← createElement api new
@@ -131,7 +142,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
           else do
             walkIndexes (0 .. (newLength - 1))
       where
-        walkIndexes = sequence_ <<< map (\i → patchIndexed target (old.children !! i) (new.children !! i) i)
+        walkIndexes = Foldable.sequence_ <<< map (\i → patchIndexed target (old.children !! i) (new.children !! i) i)
         oldLength = length old.children
         newLength = length new.children
     walkChildren _ _ _ = pure unit
