@@ -42,6 +42,7 @@ type VDOM ev ef =
   , setAttribute :: String → String → ef → Effect Unit
   , removeAttribute :: String → ef → Effect Unit
   , addEventListener :: String → (ev → Effect Unit) → ef → Effect Unit
+  , getElementById :: String -> Effect (Maybe ef)
   }
 
 h :: ∀ v. String → Props → Array (VNode v) → VNode v

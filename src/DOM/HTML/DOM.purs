@@ -1,23 +1,24 @@
 module DOM.HTML.DOM (api) where
 
-import Effect (Effect)
+import DOM.VirtualDOM
+
 import Data.Maybe (Maybe(..))
-import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))
+import Effect (Effect)
+import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))ap)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Document as Document
 import Web.DOM.Element as Element
 import Web.DOM.Internal.Types (Node)
 import Web.DOM.Node as Node
-import Web.DOM.Text as Text
 import Web.DOM.NodeList as NodeList
+import Web.DOM.NonElementParentNode as NonElementParentNode
+import Web.DOM.Text as Text
 import Web.Event.Event as Event
 import Web.Event.EventTarget as EventTarget
 import Web.Event.Internal.Types (Event)
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.Window as Window
-import DOM.VirtualDOM
-
       
 document :: Effect Document.Document
 document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
@@ -63,7 +64,11 @@ addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
 
-
+getElementById :: String -> Effect (Maybe Node)
+getElementById id = do
+  doc <- document
+  let nepn = Document.toNonElementParentNode doc
+  unsafeCoerce NonElementParentNode.getElementById id nepn
 
 api :: VDOM Event Node
 api =
@@ -79,4 +84,5 @@ api =
   , setAttribute
   , removeAttribute
   , addEventListener
+  , getElementById
   }
