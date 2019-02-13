@@ -1,10 +1,8 @@
-module DOM.HTML.DOM where
+module DOM.HTML.DOM (api) where
 
 import Effect (Effect)
 import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple)
-import Prelude (Unit, bind, pure, void, ($), (<>), (>=>), (>>=), (>>>))
-import Data.Show
+import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Document as Document
 import Web.DOM.Element as Element
@@ -18,7 +16,6 @@ import Web.Event.Internal.Types (Event)
 import Web.HTML as HTML
 import Web.HTML.HTMLDocument as HTMLDocument
 import Web.HTML.Window as Window
-import Data.Map (Map, fromFoldable)
 import DOM.VirtualDOM
 
       
@@ -65,3 +62,21 @@ addEventListener :: String → (Event → Effect Unit) → Node → Effect Unit
 addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
+
+
+
+api :: VDOM Event Node
+api =
+  { createElement
+  , createElementNS
+  , createTextNode
+  , replaceChild
+  , removeChild
+  , appendChild
+  , childCount
+  , childAt
+  , setTextContent
+  , setAttribute
+  , removeAttribute
+  , addEventListener
+  }
