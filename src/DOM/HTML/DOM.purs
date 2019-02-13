@@ -1,10 +1,10 @@
 module DOM.HTML.DOM (api) where
 
-import DOM.VirtualDOM
+import DOM.VirtualDOM (VDOM)
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))ap)
+import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))
 import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Document as Document
 import Web.DOM.Element as Element

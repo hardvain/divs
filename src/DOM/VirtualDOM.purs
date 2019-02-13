@@ -1,4 +1,4 @@
-module DOM.VirtualDOM where
+module DOM.VirtualDOM (VNode(..), Props, EventListener(..)) where
  
 import Data.Show
 
@@ -58,8 +58,8 @@ with n _ = n
 text :: ∀ v. String → VNode v
 text = Text
 
-createElement' :: ∀ ev ef. VDOM ev ef → VNode ev → Effect ef
-createElement' api (Element e) = do
+createElement :: ∀ ev ef. VDOM ev ef → VNode ev → Effect ef
+createElement api (Element e) = do
   el ← api.createElement e.name
   _ <- pure (map (\_ k v → api.setAttribute k v el) e.props)
   -- sequence_ $ e.listeners <#> addListener api el
@@ -67,11 +67,11 @@ createElement' api (Element e) = do
   _ <- Foldable.traverse_ (\child -> appendChild' api el child) e.children
   -- _ <- Foldable.sequence_ $ e.children <#> (createElement api >=> flip api.appendChild el)
   pure el
-createElement' api (Text t) = api.createTextNode t
+createElement api (Text t) = api.createTextNode t
 
 appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ev -> Effect ef
 appendChild' api parent child = do
-  createdChild <- createElement' api child
+  createdChild <- createElement api child
   _ <- api.appendChild parent createdChild
   pure createdChild
 
@@ -102,7 +102,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
     patchIndexed :: ef → Maybe (VNode  ev) → Maybe (VNode  ev) → Int → Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
-      el ← createElement' api new
+      el ← createElement api new
       api.appendChild el parent
 
     patchIndexed parent (Just _) Nothing index = do
@@ -122,7 +122,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
         Nothing → pure unit
         Just me →
           if (changed old new) then do
-            n ← createElement' api new
+            n ← createElement api new
             api.replaceChild n me parent
           else do
             _ <- case old, new of
