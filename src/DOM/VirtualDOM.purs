@@ -1,4 +1,4 @@
-module DOM.VirtualDOM (VNode(..), Props, EventListener(..)) where
+module DOM.VirtualDOM (VNode(..), Props, EventListener(..), h, with, prop, text, VDOM, createElement) where
  
 import Data.Show
 
@@ -72,7 +72,7 @@ createElement api (Text t) = api.createTextNode t
 appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ev -> Effect ef
 appendChild' api parent child = do
   createdChild <- createElement api child
-  _ <- api.appendChild parent createdChild
+  _ <- api.appendChild createdChild parent
   pure createdChild
 
 addListener :: ∀  ev ef. VDOM  ev ef → ef → EventListener  ev → Effect Unit
