@@ -2,17 +2,14 @@ module DOM.VirtualDOM where
  
 import Data.Show
 
-import Data.Foldable (class Foldable)
 import Data.Foldable as Foldable
-import Data.List ((!!), length, (..))
-import Data.Map (update)
+import Data.Array ((!!), length, (..))
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromJust, maybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import HTML (appendChild, createElement)
-import Prelude (Unit, bind, pure, unit, void, ($), (>>=), (>>>), (>=>), (<>), (/=), map, (<#>), flip, when, (<<<), (>), (-), (<$>))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
 type Attribute = Tuple String String
 
 data EventListener eventData = On String (eventData → Effect Unit)
@@ -71,7 +68,7 @@ createElement' api (Element e) = do
   pure el
 createElement' api (Text t) = api.createTextNode t
 
-appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ef -> Effect ef
+appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ev -> Effect ef
 appendChild' api parent child = do
   createdChild <- createElement' api child
   _ <- api.appendChild parent createdChild
@@ -98,13 +95,13 @@ updateProps api target old new = do
         Just prev, Just next → when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing → pure unit
 
-patch :: ∀  ev ef. VDOM  ev ef → l → Maybe (VNode  v) → Maybe (VNode  v) → Effect Unit
+patch :: ∀  ev ef. VDOM  ev ef → ef → Maybe (VNode  ev) → Maybe (VNode  ev) → Effect Unit
 patch api target' old' new' = patchIndexed target' old' new' 0
   where
-    patchIndexed :: l → Maybe (VNode  v) → Maybe (VNode  v) → Int → Effect Unit
+    patchIndexed :: ef → Maybe (VNode  ev) → Maybe (VNode  ev) → Int → Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
-      el ← createElement api new
+      el ← createElement' api new
       api.appendChild el parent
 
     patchIndexed parent (Just _) Nothing index = do
@@ -124,7 +121,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
         Nothing → pure unit
         Just me →
           if (changed old new) then do
-            n ← createElement api new
+            n ← createElement' api new
             api.replaceChild n me parent
           else do
             _ <- case old, new of
@@ -133,7 +130,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
               _, _ → pure unit
             walkChildren me old new
 
-    walkChildren :: l → VNode  v → VNode  v → Effect e Unit
+    walkChildren :: ef → VNode  ev → VNode  ev → Effect Unit
     walkChildren target (Element old) (Element new) = do
         if (oldLength > newLength)
           then do
@@ -146,7 +143,4 @@ patch api target' old' new' = patchIndexed target' old' new' 0
         oldLength = length old.children
         newLength = length new.children
     walkChildren _ _ _ = pure unit
-
-nodeToDom :: forall v. String → VNode  v →  Effect Unit
-nodeToDom rootId node  = pure unit
 
