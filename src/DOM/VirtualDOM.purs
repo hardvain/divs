@@ -61,11 +61,9 @@ text = Text
 createElement :: ∀ ev ef. VDOM ev ef → VNode ev → Effect ef
 createElement api (Element e) = do
   el ← api.createElement e.name
-  _ <- pure (map (\_ k v → api.setAttribute k v el) e.props)
-  -- sequence_ $ e.listeners <#> addListener api el
+  _ <- pure (Foldable.traverse_ (\_ k v → api.setAttribute k v el) e.props)
   _ <- Foldable.traverse_ (\listener -> addListener api el listener)  e.listeners
   _ <- Foldable.traverse_ (\child -> appendChild' api el child) e.children
-  -- _ <- Foldable.sequence_ $ e.children <#> (createElement api >=> flip api.appendChild el)
   pure el
 createElement api (Text t) = api.createTextNode t
 
