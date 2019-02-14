@@ -15,8 +15,8 @@ data Message = Succ | Pred
 render :: VNode Event Message
 render  = h "div" (prop [])
   [ h "h1" (prop ["style" /\ ("color: red")]) [text $ "Number " ]
-  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> pure Succ]
-  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> pure Pred]
+  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> Succ]
+  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> Pred]
   ]
 
 

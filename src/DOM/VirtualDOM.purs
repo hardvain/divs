@@ -2,17 +2,19 @@ module DOM.VirtualDOM (VNode(..), Props, EventListener(..), h, with, prop, text,
  
 import Data.Show
 
-import Data.Foldable as Foldable
 import Data.Array ((!!), length, (..))
+import Data.Foldable as Foldable
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
+import Effect.Ref as Ref
+import Effect.Console (log)
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>),(+), show)
 type Attribute = Tuple String String
 
-data EventListener eventData msg = On String (eventData → Effect msg)
+data EventListener eventData msg = On String (eventData → msg)
 
 type Props = Map.Map String String
 
@@ -60,9 +62,10 @@ text = Text
 
 createElement :: ∀ ev ef msg. VDOM ev ef msg→ VNode ev msg → Effect ef
 createElement api (Element e) = do
+  ref <- Ref.new 0
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v → api.setAttribute k v el) e.props)
-  _ <- Foldable.traverse_ (\listener -> addListener api el listener)  e.listeners
+  _ <- Foldable.traverse_ (\listener -> addListener api el listener ref)  e.listeners
   _ <- Foldable.traverse_ (\child -> appendChild' api el child) e.children
   pure el
 createElement api (Text t) = api.createTextNode t
@@ -73,8 +76,16 @@ appendChild' api parent child = do
   _ <- api.appendChild createdChild parent
   pure createdChild
 
-addListener :: ∀  ev ef msg. VDOM ev ef msg → ef → EventListener ev msg → Effect Unit
-addListener api target (On name handler) = api.addEventListener name handler target
+addListener :: ∀  ev ef msg. VDOM ev ef msg → ef → EventListener ev msg → Ref.Ref Int -> Effect Unit
+addListener api target (On name handler) ref = do
+  api.addEventListener name eventHandler target
+    where
+      eventHandler = \eventData -> do
+        value <- Ref.read ref
+        _ <- Ref.write (value + 1) ref
+        newValue <- Ref.read ref
+        _ <- log (show newValue)
+        pure (handler eventData)
 
 changed :: ∀  v msg. VNode v msg → VNode v msg → Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
