@@ -59,7 +59,7 @@ setAttribute key value = unsafeCoerce >>> Element.setAttribute key value
 removeAttribute :: String → Node → Effect Unit
 removeAttribute key = unsafeCoerce >>> Element.removeAttribute key
 
-addEventListener :: String → (Event → Effect Unit) → Node → Effect Unit
+addEventListener :: forall msg. String → (Event → Effect msg) → Node → Effect Unit
 addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
@@ -70,7 +70,7 @@ getElementById id = do
   let nepn = Document.toNonElementParentNode doc
   unsafeCoerce NonElementParentNode.getElementById id nepn
 
-api :: VDOM Event Node
+api :: forall msg. VDOM Event Node msg
 api =
   { createElement
   , createElementNS

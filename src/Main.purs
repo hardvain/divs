@@ -11,11 +11,12 @@ import Web.Event.Internal.Types (Event)
 import Effect.Console
 data App model event =  App (Component model event)
 
-render :: VNode Event
+data Message = Succ | Pred
+render :: VNode Event Message
 render  = h "div" (prop [])
   [ h "h1" (prop ["style" /\ ("color: red")]) [text $ "Number " ]
-  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> log "pred" >>= \_ -> pure unit]
-  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> log "succ" >>= \_ -> pure unit]
+  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> pure Succ]
+  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> pure Pred]
   ]
 
 

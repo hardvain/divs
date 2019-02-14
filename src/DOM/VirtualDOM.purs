@@ -12,24 +12,24 @@ import Effect (Effect)
 import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
 type Attribute = Tuple String String
 
-data EventListener eventData = On String (eventData → Effect Unit)
+data EventListener eventData msg = On String (eventData → Effect msg)
 
 type Props = Map.Map String String
 
-data VNode ev
+data VNode ev msg
   = Element
     { name :: String
     , props :: Props
-    , listeners :: Array (EventListener ev)
-    , children :: Array (VNode ev)
+    , listeners :: Array (EventListener ev msg)
+    , children :: Array (VNode ev msg)
     }
   | Text String
 
-instance showVNode :: Show (VNode v) where
+instance showVNode :: Show (VNode v msg) where
   show (Element n) = "<VNode:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
 
-type VDOM ev ef =
+type VDOM ev ef msg=
   { createElement :: String → Effect ef
   , createElementNS :: String → String → Effect ef
   , createTextNode :: String → Effect ef 
@@ -41,24 +41,24 @@ type VDOM ev ef =
   , setTextContent :: String → ef → Effect Unit
   , setAttribute :: String → String → ef → Effect Unit
   , removeAttribute :: String → ef → Effect Unit
-  , addEventListener :: String → (ev → Effect Unit) → ef → Effect Unit
+  , addEventListener :: String → (ev → Effect msg) → ef → Effect Unit
   , getElementById :: String -> Effect (Maybe ef)
   }
 
-h :: ∀ v. String → Props → Array (VNode v) → VNode v
+h :: ∀ v msg. String → Props → Array (VNode v msg) → VNode v msg
 h name props children = Element {name, props, children, listeners: []}
 
 prop :: Array (Tuple String String) → Props
 prop = Map.fromFoldable
 
-with :: ∀ v. VNode  v → Array (EventListener  v) → VNode  v
+with :: ∀ v msg. VNode v msg → Array (EventListener v msg) → VNode v msg
 with (Element n) listeners = Element $ n {listeners = listeners}
 with n _ = n
 
-text :: ∀ v. String → VNode v
+text :: ∀ v msg. String → VNode v msg
 text = Text
 
-createElement :: ∀ ev ef. VDOM ev ef → VNode ev → Effect ef
+createElement :: ∀ ev ef msg. VDOM ev ef msg→ VNode ev msg → Effect ef
 createElement api (Element e) = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v → api.setAttribute k v el) e.props)
@@ -67,21 +67,21 @@ createElement api (Element e) = do
   pure el
 createElement api (Text t) = api.createTextNode t
 
-appendChild' :: forall ev ef. VDOM ev ef -> ef -> VNode ev -> Effect ef
+appendChild' :: forall ev ef msg. VDOM ev ef msg -> ef -> VNode ev msg -> Effect ef
 appendChild' api parent child = do
   createdChild <- createElement api child
   _ <- api.appendChild createdChild parent
   pure createdChild
 
-addListener :: ∀  ev ef. VDOM  ev ef → ef → EventListener  ev → Effect Unit
+addListener :: ∀  ev ef msg. VDOM ev ef msg → ef → EventListener ev msg → Effect Unit
 addListener api target (On name handler) = api.addEventListener name handler target
 
-changed :: ∀  v. VNode  v → VNode  v → Boolean
+changed :: ∀  v msg. VNode v msg → VNode v msg → Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
 
-updateProps :: ∀  ev ef. VDOM  ev ef → ef → Props → Props → Effect Unit
+updateProps :: ∀  ev ef msg. VDOM ev ef msg → ef → Props → Props → Effect Unit
 updateProps api target old new = do
   let unionArray = Set.toUnfoldable
   Foldable.traverse_ update (Map.keys (Map.union old new))
@@ -94,10 +94,10 @@ updateProps api target old new = do
         Just prev, Just next → when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing → pure unit
 
-patch :: ∀  ev ef. VDOM  ev ef → ef → Maybe (VNode  ev) → Maybe (VNode  ev) → Effect Unit
+patch :: ∀  ev ef msg. VDOM ev ef msg → ef → Maybe (VNode ev msg) → Maybe (VNode ev msg) → Effect Unit
 patch api target' old' new' = patchIndexed target' old' new' 0
   where
-    patchIndexed :: ef → Maybe (VNode  ev) → Maybe (VNode  ev) → Int → Effect Unit
+    patchIndexed :: ef → Maybe (VNode ev msg) → Maybe (VNode ev msg) → Int → Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
       el ← createElement api new
@@ -129,7 +129,7 @@ patch api target' old' new' = patchIndexed target' old' new' 0
               _, _ → pure unit
             walkChildren me old new
 
-    walkChildren :: ef → VNode  ev → VNode  ev → Effect Unit
+    walkChildren :: ef → VNode ev msg → VNode ev msg → Effect Unit
     walkChildren target (Element old) (Element new) = do
         if (oldLength > newLength)
           then do
