@@ -9,11 +9,12 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import Effect.Ref as Ref
 import Effect.Console (log)
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>),(+), show)
-import Web.Event.Internal.Types (Event)
+import Effect.Ref as Ref
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (+), show)
 import Web.DOM.Internal.Types (Node)
+import Web.Event.Internal.Types (Event)
+import Web.HTML.HTMLDocument (currentScript)
 
 type App model message =  
   { render :: model -> Html message
@@ -70,17 +71,17 @@ text :: ∀ msg. String -> Html msg
 text = Text
 
 runApp :: ∀ model msg. String -> DomApi Node msg -> App model msg -> Effect Unit
-runApp nodeToMount api app = runApp' nodeToMount api app app.init
+runApp nodeToMount api app = do
+  maybeNode <- api.getElementById "main"
+  _ <- Foldable.traverse_ (runApp' api app app.init) maybeNode
+  pure unit
 
-runApp' :: ∀ model msg. String -> DomApi Node msg -> App model msg -> model -> Effect Unit
-runApp' nodeToMount api app model = do 
-    currentState <- Ref.new app.init
-    let renderedHtml = (app.render model)
-    createdElement <- createElement api renderedHtml
-    maybeNode <- api.getElementById "main"
-    case maybeNode of
-      Just node -> api.appendChild createdElement node 
-      Nothing -> pure unit
+runApp' :: ∀ model msg.  DomApi Node msg -> App model msg -> model -> Node -> Effect Unit
+runApp' api app model nodeToMount = do 
+  currentState <- Ref.new app.init
+  let htmlToRender = (app.render model)
+  createdElement <- createElement api htmlToRender
+  api.appendChild createdElement nodeToMount
 
 
 createElement :: ∀ ef msg. DomApi ef msg -> Html msg -> Effect ef
