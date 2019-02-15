@@ -1,4 +1,4 @@
-module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, VDOM, createElement, mount) where
+module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, DomApi, createElement, mount) where
  
 import Data.Show
 
@@ -35,7 +35,7 @@ instance showHtml :: Show (Html msg) where
   show (Element n) = "<Html:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
 
-type VDOM ef msg =
+type DomApi ef msg =
   { createElement :: String → Effect ef
   , createElementNS :: String → String → Effect ef
   , createTextNode :: String → Effect ef 
@@ -64,7 +64,7 @@ with n _ = n
 text :: ∀ msg. String → Html msg
 text = Text
 
-mount :: ∀  msg. String → VDOM Node msg → Html msg → Effect Unit
+mount :: ∀  msg. String → DomApi Node msg → Html msg → Effect Unit
 mount nodeToMount api vnode = do 
     nodeState <- Ref.new (Just vnode)
     maybeNode <- api.getElementById "main"
@@ -75,7 +75,7 @@ mount nodeToMount api vnode = do
             pure unit
         Nothing -> pure unit
 
-createElement :: ∀ ef msg. VDOM ef msg → Html msg → Effect ef
+createElement :: ∀ ef msg. DomApi ef msg → Html msg → Effect ef
 createElement api (Element e) = do
   ref <- Ref.new 0
   el ← api.createElement e.name
@@ -85,13 +85,13 @@ createElement api (Element e) = do
   pure el
 createElement api (Text t) = api.createTextNode t
 
-appendChild' :: forall ef msg. VDOM ef msg -> ef -> Html msg -> Effect ef
+appendChild' :: forall ef msg. DomApi ef msg -> ef -> Html msg -> Effect ef
 appendChild' api parent child = do
   createdChild <- createElement api child
   _ <- api.appendChild createdChild parent
   pure createdChild
 
-addListener :: ∀  ef msg. VDOM ef msg → ef → EventListener msg → Ref.Ref Int -> Effect Unit
+addListener :: ∀  ef msg. DomApi ef msg → ef → EventListener msg → Ref.Ref Int -> Effect Unit
 addListener api target (On name handler) ref = do
   api.addEventListener name eventHandler target
     where
@@ -107,7 +107,7 @@ changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
 
-updateProps :: ∀  ef msg. VDOM ef msg → ef → Props → Props → Effect Unit
+updateProps :: ∀  ef msg. DomApi ef msg → ef → Props → Props → Effect Unit
 updateProps api target old new = do
   let unionArray = Set.toUnfoldable
   Foldable.traverse_ update (Map.keys (Map.union old new))
@@ -120,7 +120,7 @@ updateProps api target old new = do
         Just prev, Just next → when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing → pure unit
 
-patch :: ∀  ef msg. VDOM ef msg → ef → Maybe (Html msg) → Maybe (Html msg) → Effect Unit
+patch :: ∀  ef msg. DomApi ef msg → ef → Maybe (Html msg) → Maybe (Html msg) → Effect Unit
 patch api target' old' new' = patchIndexed target' old' new' 0
   where
     patchIndexed :: ef → Maybe (Html  msg) → Maybe (Html  msg) → Int → Effect Unit
