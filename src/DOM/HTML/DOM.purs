@@ -70,7 +70,7 @@ getElementById id = do
   let nepn = Document.toNonElementParentNode doc
   unsafeCoerce NonElementParentNode.getElementById id nepn
 
-api :: forall msg. VDOM Event Node msg
+api :: forall msg. VDOM Node msg
 api =
   { createElement
   , createElementNS
