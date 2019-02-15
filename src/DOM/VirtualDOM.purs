@@ -76,12 +76,10 @@ runApp' :: ∀ model msg. String -> DomApi Node msg -> App model msg -> model ->
 runApp' nodeToMount api app model = do 
     currentState <- Ref.new app.init
     let renderedHtml = (app.render model)
+    createdElement <- createElement api renderedHtml
     maybeNode <- api.getElementById "main"
     case maybeNode of
-      Just node -> do
-        createdElement <- createElement api renderedHtml
-        _ <- api.appendChild  createdElement node 
-        pure unit
+      Just node -> api.appendChild createdElement node 
       Nothing -> pure unit
 
 
