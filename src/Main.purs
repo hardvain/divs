@@ -1,7 +1,7 @@
 module Main where
   
 import DOM.HTML.DOM (api)
-import DOM.VirtualDOM (App, EventListener(..), Html, h, mount, prop, text, with)
+import DOM.VirtualDOM (App, EventListener(..), Html, h, runApp, prop, text, with)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
@@ -31,4 +31,4 @@ app =
   }
 
 main :: Effect Unit
-main = mount "main" api app
+main = runApp "main" api app

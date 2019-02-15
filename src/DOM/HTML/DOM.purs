@@ -23,43 +23,43 @@ import Web.HTML.Window as Window
 document :: Effect Document.Document
 document = HTML.window >>= Window.document >>= HTMLDocument.toDocument >>> pure
 
-createElement :: String → Effect Node
+createElement :: String -> Effect Node
 createElement name = document >>= Document.createElement name >>= Element.toNode >>> pure
 
-createElementNS :: String → String → Effect Node
+createElementNS :: String -> String -> Effect Node
 createElementNS ns name = document >>= Document.createElementNS  (Just ns) name >>= Element.toNode >>> pure
 
-createTextNode ::  String → Effect Node
+createTextNode ::  String -> Effect Node
 createTextNode t = document >>= Document.createTextNode t >>= Text.toNode >>> pure
 
-replaceChild ::  Node → Node → Node → Effect Unit
+replaceChild ::  Node -> Node -> Node -> Effect Unit
 replaceChild new old parent = void $ Node.replaceChild new old parent
 
-removeChild ::  Node → Node → Effect Unit
+removeChild ::  Node -> Node -> Effect Unit
 removeChild child parent = void $ Node.removeChild child parent
 
-appendChild ::  Node → Node → Effect Unit
+appendChild ::  Node -> Node -> Effect Unit
 appendChild child parent = void $ Node.appendChild child parent
 
-childCount ::  Node → Effect Int
+childCount ::  Node -> Effect Int
 childCount = Node.childNodes >=> NodeList.length
 
-childAt :: Int → Node → Effect (Maybe Node)
+childAt :: Int -> Node -> Effect (Maybe Node)
 childAt index node = Node.childNodes node >>= NodeList.item index 
 
-nextSibling ::  Node → Effect (Maybe Node)
+nextSibling ::  Node -> Effect (Maybe Node)
 nextSibling = Node.nextSibling 
 
-setTextContent ::  String → Node → Effect Unit
+setTextContent ::  String -> Node -> Effect Unit
 setTextContent = Node.setTextContent
 
-setAttribute :: String → String → Node → Effect Unit
+setAttribute :: String -> String -> Node -> Effect Unit
 setAttribute key value = unsafeCoerce >>> Element.setAttribute key value
 
-removeAttribute :: String → Node → Effect Unit
+removeAttribute :: String -> Node -> Effect Unit
 removeAttribute key = unsafeCoerce >>> Element.removeAttribute key
 
-addEventListener :: forall msg. String → (Event → Effect msg) → Node → Effect Unit
+addEventListener :: forall msg. String -> (Event -> Effect msg) -> Node -> Effect Unit
 addEventListener name handler node = do
     eventListener <- EventTarget.eventListener handler
     EventTarget.addEventListener (Event.EventType name) eventListener false (unsafeCoerce node)
