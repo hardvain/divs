@@ -1,4 +1,4 @@
-module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, DomApi, createElement, mount) where
+module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, DomApi, createElement, mount, App) where
  
 import Data.Show
 
@@ -15,6 +15,11 @@ import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), 
 import Web.Event.Internal.Types (Event)
 import Web.DOM.Internal.Types (Node)
 
+type App model message =  
+  { render :: model -> Html message
+  , update :: model -> message -> model
+  , init :: model
+  }
 
 type Attribute = Tuple String String
 
@@ -64,16 +69,15 @@ with n _ = n
 text :: ∀ msg. String → Html msg
 text = Text
 
-mount :: ∀  msg. String → DomApi Node msg → Html msg → Effect Unit
-mount nodeToMount api vnode = do 
-    nodeState <- Ref.new (Just vnode)
+mount :: ∀ model msg. String → DomApi Node msg → App model msg → Effect Unit
+mount nodeToMount api app = do 
     maybeNode <- api.getElementById "main"
     case maybeNode of
-        Just node -> do
-            createdElement <- createElement api vnode
-            _ <- api.appendChild  createdElement node
-            pure unit
-        Nothing -> pure unit
+      Just node -> do
+        createdElement <- createElement api (app.render app.init)
+        _ <- api.appendChild  createdElement node
+        pure unit
+      Nothing -> pure unit
 
 createElement :: ∀ ef msg. DomApi ef msg → Html msg → Effect ef
 createElement api (Element e) = do
