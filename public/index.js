@@ -2820,17 +2820,14 @@ var PS = {};
   var Data_Set = PS["Data.Set"];
   var Data_Show = PS["Data.Show"];
   var Data_Tuple = PS["Data.Tuple"];
-  var Data_Tuple_Nested = PS["Data.Tuple.Nested"];
   var Data_Unfoldable = PS["Data.Unfoldable"];
   var Data_Unit = PS["Data.Unit"];
   var Effect = PS["Effect"];
-  var Effect_Console = PS["Effect.Console"];
   var Effect_Ref = PS["Effect.Ref"];
   var FRP_Event = PS["FRP.Event"];
   var Prelude = PS["Prelude"];
   var Web_DOM_Internal_Types = PS["Web.DOM.Internal.Types"];
-  var Web_Event_Internal_Types = PS["Web.Event.Internal.Types"];
-  var Web_HTML_HTMLAreaElement = PS["Web.HTML.HTMLAreaElement"];                 
+  var Web_Event_Internal_Types = PS["Web.Event.Internal.Types"];                 
   var On = (function () {
       function On(value0, value1) {
           this.value0 = value0;
@@ -2892,9 +2889,9 @@ var PS = {};
                   if (v1 instanceof Data_Maybe.Nothing && v instanceof Data_Maybe.Nothing) {
                       return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                   };
-                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 151, column 7 - line 155, column 38): " + [ v1.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 147, column 7 - line 151, column 38): " + [ v1.constructor.name, v.constructor.name ]);
               };
-              return Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Set.foldableSet)(update)(Data_Map.keys(Data_Map_Internal.union(Data_Ord.ordString)(old)($$new)));
+              return Data_Foldable.for_(Effect.applicativeEffect)(Data_Set.foldableSet)(Data_Map.keys(Data_Map_Internal.union(Data_Ord.ordString)(old)($$new)))(update);
           };
       };
   };
@@ -2947,14 +2944,14 @@ var PS = {};
                       })(target);
                   };
                   return function __do() {
-                      var v1 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(attach)(v.value0.listeners)();
+                      var v1 = Data_Foldable.for_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(v.value0.listeners)(attach)();
                       return target;
                   };
               };
               if (v instanceof Text) {
                   return Control_Applicative.pure(Effect.applicativeEffect)(target);
               };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 129, column 1 - line 129, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 125, column 1 - line 125, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
           };
       };
   };
@@ -2966,7 +2963,7 @@ var PS = {};
           if (v instanceof Text) {
               return DOM_HTML_DOM.api.createTextNode(v.value0);
           };
-          throw new Error("Failed pattern match at DOM.VirtualDOM (line 105, column 1 - line 105, column 75): " + [ v.constructor.name, callback.constructor.name ]);
+          throw new Error("Failed pattern match at DOM.VirtualDOM (line 101, column 1 - line 101, column 75): " + [ v.constructor.name, callback.constructor.name ]);
       };
   };
   var appendChild = function (v) {
@@ -2977,14 +2974,14 @@ var PS = {};
                       return Control_Bind.bind(Effect.bindEffect)(createElement(child)(callback))(Data_Function.flip(DOM_HTML_DOM.api.appendChild)(target));
                   };
                   return function __do() {
-                      var v1 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(attach)(v.value0.children)();
+                      var v1 = Data_Foldable.for_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(v.value0.children)(attach)();
                       return target;
                   };
               };
               if (v instanceof Text) {
                   return DOM_HTML_DOM.api.createTextNode(v.value0);
               };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 120, column 1 - line 120, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 116, column 1 - line 116, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
           };
       };
   };
@@ -3038,7 +3035,7 @@ var PS = {};
                                           if (v4 instanceof Data_Maybe.Nothing) {
                                               return Data_Unit.unit;
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 173, column 7 - line 175, column 29): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 169, column 7 - line 171, column 29): " + [ v4.constructor.name ]);
                                       };
                                   };
                                   if (v1 instanceof Data_Maybe.Just && (v1.value0 instanceof Text && (v2 instanceof Data_Maybe.Just && v2.value0 instanceof Text))) {
@@ -3069,10 +3066,10 @@ var PS = {};
                                               })();
                                               return walkChildren(v4.value0)(v1.value0)(v2.value0)();
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 184, column 7 - line 195, column 36): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 180, column 7 - line 191, column 36): " + [ v4.constructor.name ]);
                                       };
                                   };
-                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 165, column 5 - line 165, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
+                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 161, column 5 - line 161, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
                               };
                           };
                       };

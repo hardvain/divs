@@ -3,22 +3,18 @@ module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, 
 
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
-import Data.Foldable (class Foldable, traverse_)
 import Data.Foldable as Foldable
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Show (class Show)
 import Data.Tuple (Tuple, fst, snd)
-import Data.Tuple.Nested ((/\))
 import Effect (Effect)
-import Effect.Console (log)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip, (<<<))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip)
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
-import Web.HTML.HTMLAreaElement (target)
 
 type App model message =  
   { render :: model -> Html message
@@ -74,7 +70,7 @@ text :: forall msg. String -> Html msg
 text = Text
 
 mount :: forall model msg. String -> App model msg -> Effect Unit
-mount nodeToMount app =  api.getElementById "main" >>= traverse_ (runApp app)
+mount nodeToMount app =  api.getElementById "main" >>= Foldable.traverse_ (runApp app)
 
 runApp :: forall msg model. App model msg -> Node -> Effect Unit
 runApp app nodeToMount = do
@@ -119,7 +115,7 @@ setAttributes _ element = pure element
 
 appendChild :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
 appendChild  html@(Element e) callback target = do
-  _ <- Foldable.traverse_ attach e.children
+  _ <- Foldable.for_ e.children attach 
   pure target
     where 
       attach ::  Html msg -> Effect Unit
@@ -128,7 +124,7 @@ appendChild  (Text t) callback target = api.createTextNode t
 
 addListener :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
 addListener  (Element e) callback target = do
-  _ <- Foldable.traverse_ attach e.listeners
+  _ <- Foldable.for_ e.listeners attach 
   pure target
     where
       attach :: EventListener msg -> Effect Unit
@@ -144,7 +140,7 @@ changed _ _ = true
 updateProps :: Node -> Props -> Props -> Effect Unit
 updateProps target old new = do
   let unionArray = Set.toUnfoldable
-  Foldable.traverse_ update (Map.keys (Map.union old new))
+  Foldable.for_ (Map.keys (Map.union old new)) update 
   where
     update :: String -> Effect Unit
     update key =
