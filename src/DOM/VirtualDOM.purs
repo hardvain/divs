@@ -13,7 +13,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), (<$>))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=))
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 
@@ -64,23 +64,13 @@ with :: forall msg
 with (Element n) listeners = Element $ n {listeners = listeners}
 with n _ = n
 
-text :: forall msg
-  .  String 
-  -> Html msg
+text :: forall msg. String -> Html msg
 text = Text
 
-mount 
-  :: forall model msg
-  .  String 
-  -> App model msg 
-  -> Effect Unit
+mount :: forall model msg. String -> App model msg -> Effect Unit
 mount nodeToMount app =  api.getElementById "main" >>= traverse_ (runApp app)
 
-runApp 
-  :: forall msg model
-  .  App model msg 
-  -> Node 
-  -> Effect Unit
+runApp :: forall msg model. App model msg -> Node -> Effect Unit
 runApp app nodeToMount = do
   initModel <- Ref.new app.init
   let htmlToRender = (app.render app.init)
@@ -106,7 +96,6 @@ onMessage  nodeToMount app {model:modelRef,html:htmlRef} eventCallback newMsg = 
   let newHtml = (app.render newModel)
   patch nodeToMount (Just oldHtml) (Just newHtml) eventCallback
   
-
 createElement 
   :: forall msg
   .  Html msg 
@@ -116,18 +105,18 @@ createElement (Element e) callback = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
   _ <- Foldable.traverse_ (\listener -> addListener el listener callback)  e.listeners
-  _ <- Foldable.traverse_ (\child -> appendChild' el child callback) e.children
+  _ <- Foldable.traverse_ (\child -> appendChild el child callback) e.children
   pure el
 createElement (Text t) callback = api.createTextNode t
 
 
-appendChild' 
+appendChild 
   :: forall  msg
   .  Node 
   -> Html msg 
   -> EventCallback msg
   -> Effect Node
-appendChild' parent child callback = do
+appendChild parent child callback = do
   createdChild <- createElement child callback
   _ <- api.appendChild createdChild parent 
   pure createdChild
@@ -145,11 +134,7 @@ addListener target (On name handler) callback  = do
         let result = handler eventData
         callback result
 
-changed 
-  :: forall msg
-  .  Html msg 
-  -> Html msg 
-  -> Boolean
+changed :: forall msg. Html msg -> Html msg -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
