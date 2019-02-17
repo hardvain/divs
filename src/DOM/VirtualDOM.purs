@@ -14,13 +14,13 @@ import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), 
 import Web.DOM.Internal.Types (Node)
 import DOM.HTML.DOM (api)
 import Web.Event.Internal.Types (Event)
+import DOM.Channel
 
 type App model message =  
   { render :: model -> Html message
   , update :: model -> message -> model
   , init :: model
   }
-
 type Attribute = Tuple String String
 
 data EventListener  msg = On String (Event -> msg)
@@ -65,35 +65,38 @@ runApp app model nodeToMount = do
 
 runAppOnMessage :: forall msg model. Node -> App model msg -> model -> Maybe msg -> Effect Unit
 runAppOnMessage nodeToMount app oldModel maybeMsg = do
+  current <- Ref.new Nothing
+  past <- Ref.new []
+  let channel = Channel { current: current , past: past} :: Channel msg
   currentState <- Ref.new app.init
   let modelToRender = case (map (app.update oldModel) maybeMsg) of
                         Just model -> model
                         Nothing -> oldModel
   let htmlToRender = (app.render modelToRender)
-  createdElement <- createElement  htmlToRender
+  createdElement <- createElement  htmlToRender channel
   api.appendChild createdElement nodeToMount
 
-createElement :: forall  msg. Html msg -> Effect Node
-createElement (Element e) = do
+createElement :: forall  msg. Html msg -> Channel msg -> Effect Node
+createElement (Element e) channel = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
-  _ <- Foldable.traverse_ (\listener -> addListener el listener)  e.listeners
-  _ <- Foldable.traverse_ (\child -> appendChild' el child) e.children
+  _ <- Foldable.traverse_ (\listener -> addListener el listener channel)  e.listeners
+  _ <- Foldable.traverse_ (\child -> appendChild' el child channel) e.children
   pure el
-createElement (Text t) = api.createTextNode t
+createElement (Text t) channel = api.createTextNode t
 
-appendChild' :: forall  msg. Node -> Html msg -> Effect Node
-appendChild' parent child = do
-  createdChild <- createElement child
-  _ <- api.appendChild createdChild parent
+appendChild' :: forall  msg. Node -> Html msg -> Channel msg -> Effect Node
+appendChild' parent child channel = do
+  createdChild <- createElement child channel
+  _ <- api.appendChild createdChild parent 
   pure createdChild
 
-addListener :: forall   msg. Node -> EventListener msg -> Effect Unit
-addListener target (On name handler)  = do
+addListener :: forall   msg. Node -> EventListener msg -> Channel msg -> Effect Unit
+addListener target (On name handler) channel  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
-        pure (handler eventData)
+        send (handler eventData) channel
 
 changed :: forall  msg. Html msg -> Html msg -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
@@ -113,13 +116,13 @@ updateProps target old new = do
         Just prev, Just next -> when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing -> pure unit
 
-patch :: forall   msg. Node -> Maybe (Html msg) -> Maybe (Html msg) -> Effect Unit
-patch target' old' new' = patchIndexed target' old' new' 0
+patch :: forall   msg. Node -> Maybe (Html msg) -> Maybe (Html msg) -> Channel msg -> Effect Unit
+patch target' old' new' channel = patchIndexed target' old' new' 0
   where
     patchIndexed :: Node -> Maybe (Html  msg) -> Maybe (Html  msg) -> Int -> Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
-      el ← createElement new
+      el ← createElement new channel
       api.appendChild el parent
 
     patchIndexed parent (Just _) Nothing index = do
@@ -139,7 +142,7 @@ patch target' old' new' = patchIndexed target' old' new' 0
         Nothing -> pure unit
         Just me ->
           if (changed old new) then do
-            n ← createElement  new
+            n ← createElement new channel
             api.replaceChild n me parent
           else do
             _ <- case old, new of
