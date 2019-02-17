@@ -1,6 +1,5 @@
 module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, createElement, mount, App) where
  
-import Effect.Console
 
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
@@ -13,7 +12,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), show)
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 

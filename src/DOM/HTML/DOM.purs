@@ -1,7 +1,5 @@
 module DOM.HTML.DOM (api) where
 
-import DOM.API (DomApi)
-
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Prelude (Unit, bind, pure, void, ($), (>=>), (>>=), (>>>))
@@ -70,7 +68,6 @@ getElementById id = do
   let nepn = Document.toNonElementParentNode doc
   unsafeCoerce NonElementParentNode.getElementById id nepn
 
-api :: forall msg. DomApi Node msg
 api =
   { createElement
   , createElementNS
