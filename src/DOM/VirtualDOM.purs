@@ -3,6 +3,7 @@ module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, 
 
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
+import Data.Foldable (traverse_)
 import Data.Foldable as Foldable
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
@@ -12,7 +13,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), (<$>))
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 
@@ -21,10 +22,16 @@ type App model message =
   , update :: model -> message -> model
   , init :: model
   }
+
+type AppState model message = {
+  model :: Ref.Ref model,
+  html :: Ref.Ref (Html message)
+}
+
 type Attribute = Tuple String String
 
 data EventListener  msg = On String (Event -> msg)
-
+type EventCallback msg = msg -> Effect Unit
 type Props = Map.Map String String
 
 data Html msg
@@ -66,49 +73,41 @@ mount :: forall model msg
   . (Show msg) => String 
   -> App model msg 
   -> Effect Unit
-mount nodeToMount app = do
-  maybeNode <- api.getElementById "main"
-  _ <- Foldable.traverse_ (runApp app ) maybeNode
-  pure unit
+mount nodeToMount app =  api.getElementById "main" >>= traverse_ (runApp app)
 
-runApp :: forall model msg
+runApp :: forall msg model
   . (Show msg) => App model msg 
   -> Node 
   -> Effect Unit
-runApp app nodeToMount = do 
-  runAppOnMessage nodeToMount app Nothing
-
-runAppOnMessage :: forall msg model
-  . (Show msg) => Node 
-  -> App model msg 
-  -> Maybe msg 
-  -> Effect Unit
-runAppOnMessage nodeToMount app maybeMsg = do
-  currentState <- Ref.new app.init
-  oldModel <- Ref.read currentState
-  let modelToRender = case (map (app.update oldModel) maybeMsg) of
-                        Just model -> model
-                        Nothing -> oldModel
-  let htmlToRender = (app.render modelToRender)
-  currentMessage <- Ref.new htmlToRender
-  event <- Event.create :: Effect { event :: Event.Event msg, push :: msg -> Effect Unit }
-  _ <- Event.subscribe event.event (\i -> callback i nodeToMount app currentState currentMessage event.push)
+runApp app nodeToMount = do
+  initModel <- Ref.new app.init
+  let htmlToRender = (app.render app.init)
+  initHtml <- Ref.new htmlToRender
+  let appState = {model: initModel, html: initHtml} 
+  event <- Event.create 
+  _ <- Event.subscribe event.event $ onMessage nodeToMount app appState event.push
   patch nodeToMount Nothing (Just htmlToRender) event.push
 
-callback :: forall msg model. Show msg => msg -> Node -> App model msg -> Ref.Ref model -> Ref.Ref  (Html msg) -> (msg -> Effect Unit) -> Effect Unit
-callback newMsg nodeToMount app modelRef htmlRef channel = do
+onMessage :: forall msg model
+  . Show msg => Node 
+  -> App model msg 
+  -> AppState model msg 
+  -> EventCallback msg
+  -> msg
+  -> Effect Unit
+onMessage  nodeToMount app {model:modelRef,html:htmlRef} eventCallback newMsg = do
   oldModel <- Ref.read modelRef
-  let modelToRender = app.update oldModel newMsg
-  _ <- Ref.write modelToRender modelRef
+  let newModel = app.update oldModel newMsg
+  _ <- Ref.write newModel modelRef
   oldHtml <- Ref.read htmlRef
-  let htmlToRender = (app.render modelToRender)
-  patch nodeToMount (Just oldHtml) (Just htmlToRender) channel
+  let newHtml = (app.render newModel)
+  patch nodeToMount (Just oldHtml) (Just newHtml) eventCallback
   
 
 createElement 
   :: forall  msg
   .  (Show msg) => Html msg 
-  -> (msg -> Effect Unit) 
+  -> EventCallback msg 
   -> Effect Node
 createElement (Element e) channel = do
   el ← api.createElement e.name
@@ -118,10 +117,11 @@ createElement (Element e) channel = do
   pure el
 createElement (Text t) channel = api.createTextNode t
 
+
 appendChild' :: forall  msg
   . (Show msg) => Node 
   -> Html msg 
-  -> (msg -> Effect Unit)
+  -> EventCallback msg
   -> Effect Node
 appendChild' parent child channel = do
   createdChild <- createElement child channel
@@ -131,7 +131,7 @@ appendChild' parent child channel = do
 addListener :: forall msg
   . (Show msg) => Node 
   -> EventListener msg 
-  -> (msg -> Effect Unit)
+  -> EventCallback msg
   -> Effect Unit
 addListener target (On name handler) channel  = do
   api.addEventListener name eventHandler target
@@ -165,7 +165,7 @@ patch :: forall msg
   . (Show msg) => Node 
   -> Maybe (Html msg) 
   -> Maybe (Html msg) 
-  -> (msg -> Effect Unit)
+  -> EventCallback msg
   -> Effect Unit
 patch target' old' new' channel = patchIndexed target' old' new' 0
   where

@@ -488,15 +488,7 @@ var PS = {};
               throw new Error("Failed pattern match at Data.Maybe (line 217, column 1 - line 217, column 51): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name ]);
           };
       };
-  };                                                      
-  var functorMaybe = new Data_Functor.Functor(function (v) {
-      return function (v1) {
-          if (v1 instanceof Just) {
-              return new Just(v(v1.value0));
-          };
-          return Nothing.value;
-      };
-  });
+  };
   var fromJust = function (dictPartial) {
       return function (v) {
           if (v instanceof Just) {
@@ -509,7 +501,6 @@ var PS = {};
   exports["Just"] = Just;
   exports["maybe"] = maybe;
   exports["fromJust"] = fromJust;
-  exports["functorMaybe"] = functorMaybe;
 })(PS["Data.Maybe"] = PS["Data.Maybe"] || {});
 (function(exports) {
     "use strict";
@@ -2953,7 +2944,7 @@ var PS = {};
               if (v instanceof Text) {
                   return DOM_HTML_DOM.api.createTextNode(v.value0);
               };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 108, column 1 - line 112, column 17): " + [ v.constructor.name, channel.constructor.name ]);
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 107, column 1 - line 111, column 17): " + [ v.constructor.name, channel.constructor.name ]);
           };
       };
   };
@@ -2979,15 +2970,15 @@ var PS = {};
                           return function (v1) {
                               return function (v2) {
                                   if (v1 instanceof Element && v2 instanceof Element) {
-                                      var walkIndexes = function ($123) {
+                                      var walkIndexes = function ($122) {
                                           return Data_Foldable.sequence_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (i) {
                                               return patchIndexed(v)(Data_Array.index(v1.value0.children)(i))(Data_Array.index(v2.value0.children)(i))(i);
-                                          })($123));
+                                          })($122));
                                       };
                                       var oldLength = Data_Array.length(v1.value0.children);
                                       var newLength = Data_Array.length(v2.value0.children);
-                                      var $83 = oldLength > newLength;
-                                      if ($83) {
+                                      var $79 = oldLength > newLength;
+                                      if ($79) {
                                           return function __do() {
                                               var v3 = walkIndexes(Data_Array.range(0)(newLength - 1 | 0))();
                                               return walkIndexes(Data_Array.range(oldLength - 1 | 0)(newLength))();
@@ -3039,8 +3030,8 @@ var PS = {};
                                                   return Data_Unit.unit;
                                               };
                                               if (v4 instanceof Data_Maybe.Just) {
-                                                  var $103 = changed(dictShow)(v1.value0)(v2.value0);
-                                                  if ($103) {
+                                                  var $99 = changed(dictShow)(v1.value0)(v2.value0);
+                                                  if ($99) {
                                                       var v5 = createElement(dictShow)(v2.value0)(channel)();
                                                       return DOM_HTML_DOM.api.replaceChild(v5)(v4.value0)(v)();
                                                   };
@@ -3066,52 +3057,21 @@ var PS = {};
           };
       };
   };
-  var callback = function (dictShow) {
-      return function (newMsg) {
-          return function (nodeToMount) {
-              return function (app) {
-                  return function (modelRef) {
-                      return function (htmlRef) {
-                          return function (channel) {
-                              return function __do() {
-                                  var v = Effect_Ref.read(modelRef)();
-                                  var modelToRender = app.update(v)(newMsg);
-                                  var v1 = Effect_Ref.write(modelToRender)(modelRef)();
-                                  var v2 = Effect_Ref.read(htmlRef)();
-                                  var htmlToRender = app.render(modelToRender);
-                                  return patch(dictShow)(nodeToMount)(new Data_Maybe.Just(v2))(new Data_Maybe.Just(htmlToRender))(channel)();
-                              };
-                          };
-                      };
-                  };
-              };
-          };
-      };
-  };
-  var runAppOnMessage = function (dictShow) {
+  var onMessage = function (dictShow) {
       return function (nodeToMount) {
           return function (app) {
-              return function (maybeMsg) {
-                  return function __do() {
-                      var v = Effect_Ref["new"](app.init)();
-                      var v1 = Effect_Ref.read(v)();
-                      var modelToRender = (function () {
-                          var v2 = Data_Functor.map(Data_Maybe.functorMaybe)(app.update(v1))(maybeMsg);
-                          if (v2 instanceof Data_Maybe.Just) {
-                              return v2.value0;
+              return function (v) {
+                  return function (eventCallback) {
+                      return function (newMsg) {
+                          return function __do() {
+                              var v1 = Effect_Ref.read(v.model)();
+                              var newModel = app.update(v1)(newMsg);
+                              var v2 = Effect_Ref.write(newModel)(v.model)();
+                              var v3 = Effect_Ref.read(v.html)();
+                              var newHtml = app.render(newModel);
+                              return patch(dictShow)(nodeToMount)(new Data_Maybe.Just(v3))(new Data_Maybe.Just(newHtml))(eventCallback)();
                           };
-                          if (v2 instanceof Data_Maybe.Nothing) {
-                              return v1;
-                          };
-                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 89, column 23 - line 91, column 44): " + [ v2.constructor.name ]);
-                      })();
-                      var htmlToRender = app.render(modelToRender);
-                      var v2 = Effect_Ref["new"](htmlToRender)();
-                      var v3 = FRP_Event.create();
-                      var v4 = FRP_Event.subscribe(v3.event)(function (i) {
-                          return callback(dictShow)(i)(nodeToMount)(app)(v)(v2)(v3.push);
-                      })();
-                      return patch(dictShow)(nodeToMount)(Data_Maybe.Nothing.value)(new Data_Maybe.Just(htmlToRender))(v3.push)();
+                      };
                   };
               };
           };
@@ -3120,18 +3080,25 @@ var PS = {};
   var runApp = function (dictShow) {
       return function (app) {
           return function (nodeToMount) {
-              return runAppOnMessage(dictShow)(nodeToMount)(app)(Data_Maybe.Nothing.value);
+              return function __do() {
+                  var v = Effect_Ref["new"](app.init)();
+                  var htmlToRender = app.render(app.init);
+                  var v1 = Effect_Ref["new"](htmlToRender)();
+                  var appState = {
+                      model: v,
+                      html: v1
+                  };
+                  var v2 = FRP_Event.create();
+                  var v3 = FRP_Event.subscribe(v2.event)(onMessage(dictShow)(nodeToMount)(app)(appState)(v2.push))();
+                  return patch(dictShow)(nodeToMount)(Data_Maybe.Nothing.value)(new Data_Maybe.Just(htmlToRender))(v2.push)();
+              };
           };
       };
   };
   var mount = function (dictShow) {
       return function (nodeToMount) {
           return function (app) {
-              return function __do() {
-                  var v = DOM_HTML_DOM.api.getElementById("main")();
-                  var v1 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(dictShow)(app))(v)();
-                  return Data_Unit.unit;
-              };
+              return Control_Bind.bind(Effect.bindEffect)(DOM_HTML_DOM.api.getElementById("main"))(Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(dictShow)(app)));
           };
       };
   };
