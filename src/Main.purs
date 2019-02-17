@@ -6,19 +6,16 @@ import DOM.Elements as Elements
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
-import Data.Show
+import DOM.Combinators
 
 data Message = Succ | Pred 
-instance messageShow :: Show Message where
-  show Succ = "succ"
-  show Pred = "pred"
 
 appRender :: Model -> Html Message
 appRender model = h "div" (prop [])
-  [ h "h1" (prop ["style" /\ ("color: red")]) [text $ show model ]
+  [ h "h1" (prop ["style" /\ ("color: red")]) [text $ show model]
   , with (h "button" (prop []) [text "pred"]) [Events.onClick \_ -> Pred]
   , with (h "button" (prop []) [text "succ"]) [Events.onClick \_ -> Succ]
-  , Elements.code 
+  , Elements.code >$> [text "value"]
   , h "ul" (prop []) [h "li" (prop []) [text "1"], h "li" (prop []) [text "2"], h "li" (prop []) [text "3"]]
   ]
 
