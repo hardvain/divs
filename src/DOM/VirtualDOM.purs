@@ -1,6 +1,6 @@
 module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, createElement, mount, App) where
  
-import Data.Show
+import Data.Show (class Show)
 
 import Data.Array ((!!), length, (..))
 import Data.Foldable as Foldable
@@ -14,7 +14,7 @@ import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), 
 import Web.DOM.Internal.Types (Node)
 import DOM.HTML.DOM (api)
 import Web.Event.Internal.Types (Event)
-import DOM.Channel
+import DOM.Channel (Channel(..), send)
 
 type App model message =  
   { render :: model -> Html message
@@ -40,43 +40,68 @@ instance showHtml :: Show (Html msg) where
   show (Element n) = "<Html:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
 
-h :: forall msg. String -> Props -> Array (Html msg) -> Html msg
+h :: forall msg
+  . String 
+  -> Props 
+  -> Array (Html msg) 
+  -> Html msg
 h name props children = Element {name, props, children, listeners: []}
 
 prop :: Array (Tuple String String) -> Props
 prop = Map.fromFoldable
 
-with :: forall msg. Html msg -> Array (EventListener msg) -> Html msg
+with :: forall msg
+  . Html msg 
+  -> Array (EventListener msg) 
+  -> Html msg
 with (Element n) listeners = Element $ n {listeners = listeners}
 with n _ = n
 
-text :: forall msg. String -> Html msg
+text :: forall msg
+  . String 
+  -> Html msg
 text = Text
 
-mount :: forall model msg. String -> App model msg -> Effect Unit
+mount :: forall model msg
+  . String 
+  -> App model msg 
+  -> Effect Unit
 mount nodeToMount app = do
   maybeNode <- api.getElementById "main"
   _ <- Foldable.traverse_ (runApp app app.init) maybeNode
   pure unit
 
-runApp :: forall model msg.  App model msg -> model -> Node -> Effect Unit
+runApp :: forall model msg
+  .  App model msg 
+  -> model 
+  -> Node 
+  -> Effect Unit
 runApp app model nodeToMount = do 
   runAppOnMessage nodeToMount  app model Nothing
 
-runAppOnMessage :: forall msg model. Node -> App model msg -> model -> Maybe msg -> Effect Unit
+runAppOnMessage :: forall msg model
+  . Node 
+  -> App model msg 
+  -> model 
+  -> Maybe msg 
+  -> Effect Unit
 runAppOnMessage nodeToMount app oldModel maybeMsg = do
   current <- Ref.new Nothing
   past <- Ref.new []
-  let channel = Channel { current: current , past: past} :: Channel msg
   currentState <- Ref.new app.init
   let modelToRender = case (map (app.update oldModel) maybeMsg) of
                         Just model -> model
                         Nothing -> oldModel
   let htmlToRender = (app.render modelToRender)
+  let channel = Channel { current: current , past: past, handler: \m -> runAppOnMessage nodeToMount app oldModel (Just m)}
   createdElement <- createElement  htmlToRender channel
   api.appendChild createdElement nodeToMount
 
-createElement :: forall  msg. Html msg -> Channel msg -> Effect Node
+createElement 
+  :: forall  msg
+  . Html msg 
+  -> Channel msg 
+  -> Effect Node
 createElement (Element e) channel = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
@@ -85,20 +110,31 @@ createElement (Element e) channel = do
   pure el
 createElement (Text t) channel = api.createTextNode t
 
-appendChild' :: forall  msg. Node -> Html msg -> Channel msg -> Effect Node
+appendChild' :: forall  msg
+  . Node 
+  -> Html msg 
+  -> Channel msg 
+  -> Effect Node
 appendChild' parent child channel = do
   createdChild <- createElement child channel
   _ <- api.appendChild createdChild parent 
   pure createdChild
 
-addListener :: forall   msg. Node -> EventListener msg -> Channel msg -> Effect Unit
+addListener :: forall msg
+  . Node 
+  -> EventListener msg 
+  -> Channel msg 
+  -> Effect Unit
 addListener target (On name handler) channel  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
         send (handler eventData) channel
 
-changed :: forall  msg. Html msg -> Html msg -> Boolean
+changed :: forall msg
+  . Html msg 
+  -> Html msg 
+  -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
@@ -116,7 +152,12 @@ updateProps target old new = do
         Just prev, Just next -> when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing -> pure unit
 
-patch :: forall   msg. Node -> Maybe (Html msg) -> Maybe (Html msg) -> Channel msg -> Effect Unit
+patch :: forall msg
+  . Node 
+  -> Maybe (Html msg) 
+  -> Maybe (Html msg) 
+  -> Channel msg 
+  -> Effect Unit
 patch target' old' new' channel = patchIndexed target' old' new' 0
   where
     patchIndexed :: Node -> Maybe (Html  msg) -> Maybe (Html  msg) -> Int -> Effect Unit
