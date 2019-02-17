@@ -1,23 +1,23 @@
 module Main where
   
 import DOM.VirtualDOM (App, Html, h, mount, prop, text, with)
-import DOM.Events as Events
-import DOM.Elements (code, div, h1)
+import DOM.Events 
+import DOM.Elements (code, div, h1, button, ul, li)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
-import DOM.Combinators ((>$>), (>*>))
+import DOM.Combinators ((>->), (>=>), (>~>))
 
 data Message = Succ | Pred 
 
 appRender :: Model -> Html Message
-appRender model = h "div" (prop [])
-  [ div >$> [text "children"] >*> ["style" /\ "color:red"]
-  , h1  >$> [text $ show model] >*> ["style" /\ ("color: red")] 
-  , with (h "button" (prop []) [text "pred"]) [Events.onClick \_ -> Pred]
-  , with (h "button" (prop []) [text "succ"]) [Events.onClick \_ -> Succ]
-  , code >$> [text "value"]
-  , h "ul" (prop []) [h "li" (prop []) [text "1"], h "li" (prop []) [text "2"], h "li" (prop []) [text "3"]]
+appRender model = div >->
+  [ div >-> [text "children"] >=> ["style" /\ "color:red"]
+  , h1  >-> [text $ show model] >=> ["style" /\ ("color: red")] 
+  , button >-> [text "pred"] >=> ["style" /\ ("color: red")] >~> [onClick \_ -> Pred]
+  , button >-> [text "succ"] >=> ["style" /\ ("color: green")] >~> [onClick \_ -> Succ]
+  , code >-> [text "value"]
+  , ul >-> [li >-> [text "1"], li >-> [text "2"], li >-> [text "3"]]
   ]
 
 appUpdate :: Model -> Message -> Model

@@ -2858,19 +2858,6 @@ var PS = {};
       };
       return Text;
   })();
-  var $$with = function (v) {
-      return function (v1) {
-          if (v instanceof Element) {
-              return Element.create({
-                  name: v.value0.name,
-                  props: v.value0.props,
-                  listeners: v1,
-                  children: v.value0.children
-              });
-          };
-          return v;
-      };
-  };
   var updateProps = function (target) {
       return function (old) {
           return function ($$new) {
@@ -2895,8 +2882,7 @@ var PS = {};
           };
       };
   };
-  var text = Text.create;
-  var prop = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray);
+  var text = Text.create;                                                                    
   var h = function (name) {
       return function (props) {
           return function (children) {
@@ -3122,8 +3108,6 @@ var PS = {};
   exports["Text"] = Text;
   exports["On"] = On;
   exports["h"] = h;
-  exports["with"] = $$with;
-  exports["prop"] = prop;
   exports["text"] = text;
   exports["createElement"] = createElement;
   exports["mount"] = mount;
@@ -3151,6 +3135,19 @@ var PS = {};
           return v;
       };
   };
+  var withListeners = function (v) {
+      return function (v1) {
+          if (v instanceof DOM_VirtualDOM.Element) {
+              return DOM_VirtualDOM.Element.create({
+                  name: v.value0.name,
+                  props: v.value0.props,
+                  listeners: v1,
+                  children: v.value0.children
+              });
+          };
+          return v;
+      };
+  };
   var withChildren = function (v) {
       return function (v1) {
           if (v instanceof DOM_VirtualDOM.Element) {
@@ -3165,19 +3162,26 @@ var PS = {};
       };
   };
   exports["withProps"] = withProps;
+  exports["withListeners"] = withListeners;
   exports["withChildren"] = withChildren;
 })(PS["DOM.Combinators"] = PS["DOM.Combinators"] || {});
 (function(exports) {
     "use strict";
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
   var Data_Map = PS["Data.Map"];
-  var Data_Map_Internal = PS["Data.Map.Internal"];               
+  var Data_Map_Internal = PS["Data.Map.Internal"];                   
+  var ul = DOM_VirtualDOM.h("ul")(Data_Map_Internal.empty)([  ]);    
+  var li = DOM_VirtualDOM.h("li")(Data_Map_Internal.empty)([  ]);
   var h1 = DOM_VirtualDOM.h("h1")(Data_Map_Internal.empty)([  ]);
   var div = DOM_VirtualDOM.h("div")(Data_Map_Internal.empty)([  ]);
-  var code = DOM_VirtualDOM.h("code")(Data_Map_Internal.empty)([  ]);
+  var code = DOM_VirtualDOM.h("code")(Data_Map_Internal.empty)([  ]);    
+  var button = DOM_VirtualDOM.h("button")(Data_Map_Internal.empty)([  ]);
+  exports["button"] = button;
   exports["code"] = code;
   exports["div"] = div;
   exports["h1"] = h1;
+  exports["li"] = li;
+  exports["ul"] = ul;
 })(PS["DOM.Elements"] = PS["DOM.Elements"] || {});
 (function(exports) {
     "use strict";
@@ -3227,11 +3231,11 @@ var PS = {};
       };
   };
   var appRender = function (model) {
-      return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_VirtualDOM.text("children") ]))([ new Data_Tuple.Tuple("style", "color:red") ]), DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.h1)([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]))([ new Data_Tuple.Tuple("style", "color: red") ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ DOM_Events.onClick(function (v) {
+      return DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_VirtualDOM.text("children") ]))([ new Data_Tuple.Tuple("style", "color:red") ]), DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.h1)([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]))([ new Data_Tuple.Tuple("style", "color: red") ]), DOM_Combinators.withListeners(DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.button)([ DOM_VirtualDOM.text("pred") ]))([ new Data_Tuple.Tuple("style", "color: red") ]))([ DOM_Events.onClick(function (v) {
           return Pred.value;
-      }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ DOM_Events.onClick(function (v) {
+      }) ]), DOM_Combinators.withListeners(DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.button)([ DOM_VirtualDOM.text("succ") ]))([ new Data_Tuple.Tuple("style", "color: green") ]))([ DOM_Events.onClick(function (v) {
           return Succ.value;
-      }) ]), DOM_Combinators.withChildren(DOM_Elements.code)([ DOM_VirtualDOM.text("value") ]), DOM_VirtualDOM.h("ul")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("1") ]), DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("2") ]), DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("3") ]) ]) ]);
+      }) ]), DOM_Combinators.withChildren(DOM_Elements.code)([ DOM_VirtualDOM.text("value") ]), DOM_Combinators.withChildren(DOM_Elements.ul)([ DOM_Combinators.withChildren(DOM_Elements.li)([ DOM_VirtualDOM.text("1") ]), DOM_Combinators.withChildren(DOM_Elements.li)([ DOM_VirtualDOM.text("2") ]), DOM_Combinators.withChildren(DOM_Elements.li)([ DOM_VirtualDOM.text("3") ]) ]) ]);
   };
   var app = {
       render: appRender,

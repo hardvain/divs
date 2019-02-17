@@ -19,6 +19,6 @@ withChildren :: forall msg. Html msg -> Array (Html msg) -> Html msg
 withChildren (Element n) children = Element $ n {children = children}
 withChildren n _ = n
 
-infix 1 withProps as >*>
-infix 2 withListeners as >#>
-infix 3 withChildren as >$>
+infix 1 withListeners as >~>
+infix 2 withProps as >=>
+infix 3 withChildren as >->
