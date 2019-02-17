@@ -1,4 +1,4 @@
-module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, DomApi, createElement, runApp, App) where
+module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, createElement, mount, App) where
  
 import Data.Show
 
@@ -9,12 +9,11 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
-import Effect.Console (log)
 import Effect.Ref as Ref
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (+), show)
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
 import Web.DOM.Internal.Types (Node)
+import DOM.HTML.DOM (api)
 import Web.Event.Internal.Types (Event)
-import Web.HTML.HTMLDocument (currentScript)
 
 type App model message =  
   { render :: model -> Html message
@@ -41,22 +40,6 @@ instance showHtml :: Show (Html msg) where
   show (Element n) = "<Html:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
 
-type DomApi ef msg =
-  { createElement :: String -> Effect ef
-  , createElementNS :: String -> String -> Effect ef
-  , createTextNode :: String -> Effect ef 
-  , replaceChild :: ef -> ef -> ef -> Effect Unit
-  , removeChild :: ef -> ef -> Effect Unit
-  , appendChild :: ef -> ef -> Effect Unit
-  , childCount :: ef -> Effect Int
-  , childAt :: Int -> ef -> Effect (Maybe ef)
-  , setTextContent :: String -> ef -> Effect Unit
-  , setAttribute :: String -> String -> ef -> Effect Unit
-  , removeAttribute :: String -> ef -> Effect Unit
-  , addEventListener :: String -> (Event -> Effect msg) -> ef -> Effect Unit
-  , getElementById :: String -> Effect (Maybe ef)
-  }
-
 h :: ∀ msg. String -> Props -> Array (Html msg) -> Html msg
 h name props children = Element {name, props, children, listeners: []}
 
@@ -70,45 +53,46 @@ with n _ = n
 text :: ∀ msg. String -> Html msg
 text = Text
 
-runApp :: ∀ model msg. String -> DomApi Node msg -> App model msg -> Effect Unit
-runApp nodeToMount api app = do
+mount :: ∀ model msg. String -> App model msg -> Effect Unit
+mount nodeToMount app = do
   maybeNode <- api.getElementById "main"
-  _ <- Foldable.traverse_ (runApp' api app app.init) maybeNode
+  _ <- Foldable.traverse_ (runApp app app.init) maybeNode
   pure unit
 
-runApp' :: ∀ model msg.  DomApi Node msg -> App model msg -> model -> Node -> Effect Unit
-runApp' api app model nodeToMount = do 
+runApp :: ∀ model msg.  App model msg -> model -> Node -> Effect Unit
+runApp app model nodeToMount = do 
+  runAppOnMessage nodeToMount  app model Nothing
+
+runAppOnMessage :: forall msg model. Node -> App model msg -> model -> Maybe msg -> Effect Unit
+runAppOnMessage nodeToMount app oldModel maybeMsg = do
   currentState <- Ref.new app.init
-  let htmlToRender = (app.render model)
-  createdElement <- createElement api htmlToRender
+  let modelToRender = case (map (app.update oldModel) maybeMsg) of
+                        Just model -> model
+                        Nothing -> oldModel
+  let htmlToRender = (app.render modelToRender)
+  createdElement <- createElement  htmlToRender
   api.appendChild createdElement nodeToMount
 
-
-createElement :: ∀ ef msg. DomApi ef msg -> Html msg -> Effect ef
-createElement api (Element e) = do
-  ref <- Ref.new 0
+createElement :: ∀ ef msg. Html msg -> Effect Node
+createElement (Element e) = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
-  _ <- Foldable.traverse_ (\listener -> addListener api el listener ref)  e.listeners
-  _ <- Foldable.traverse_ (\child -> appendChild' api el child) e.children
+  _ <- Foldable.traverse_ (\listener -> addListener el listener)  e.listeners
+  _ <- Foldable.traverse_ (\child -> appendChild' el child) e.children
   pure el
-createElement api (Text t) = api.createTextNode t
+createElement (Text t) = api.createTextNode t
 
-appendChild' :: forall ef msg. DomApi ef msg -> ef -> Html msg -> Effect ef
-appendChild' api parent child = do
-  createdChild <- createElement api child
+appendChild' :: forall ef msg. Node -> Html msg -> Effect Node
+appendChild' parent child = do
+  createdChild <- createElement child
   _ <- api.appendChild createdChild parent
   pure createdChild
 
-addListener :: ∀  ef msg. DomApi ef msg -> ef -> EventListener msg -> Ref.Ref Int -> Effect Unit
-addListener api target (On name handler) ref = do
+addListener :: ∀  ef msg. Node -> EventListener msg -> Effect Unit
+addListener target (On name handler)  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
-        value <- Ref.read ref
-        _ <- Ref.write (value + 1) ref
-        newValue <- Ref.read ref
-        _ <- log (show newValue)
         pure (handler eventData)
 
 changed :: ∀  msg. Html msg -> Html msg -> Boolean
@@ -116,8 +100,8 @@ changed (Element e1) (Element e2) = e1.name /= e2.name
 changed (Text t1) (Text t2) = t1 /= t2
 changed _ _ = true
 
-updateProps :: ∀  ef msg. DomApi ef msg -> ef -> Props -> Props -> Effect Unit
-updateProps api target old new = do
+updateProps :: Node -> Props -> Props -> Effect Unit
+updateProps target old new = do
   let unionArray = Set.toUnfoldable
   Foldable.traverse_ update (Map.keys (Map.union old new))
   where
@@ -129,13 +113,13 @@ updateProps api target old new = do
         Just prev, Just next -> when (prev /= next) $ api.setAttribute key next target
         Nothing, Nothing -> pure unit
 
-patch :: ∀  ef msg. DomApi ef msg -> ef -> Maybe (Html msg) -> Maybe (Html msg) -> Effect Unit
-patch api target' old' new' = patchIndexed target' old' new' 0
+patch :: ∀  ef msg. Node -> Maybe (Html msg) -> Maybe (Html msg) -> Effect Unit
+patch target' old' new' = patchIndexed target' old' new' 0
   where
-    patchIndexed :: ef -> Maybe (Html  msg) -> Maybe (Html  msg) -> Int -> Effect Unit
+    patchIndexed :: Node -> Maybe (Html  msg) -> Maybe (Html  msg) -> Int -> Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
-      el ← createElement api new
+      el ← createElement new
       api.appendChild el parent
 
     patchIndexed parent (Just _) Nothing index = do
@@ -155,16 +139,16 @@ patch api target' old' new' = patchIndexed target' old' new' 0
         Nothing -> pure unit
         Just me ->
           if (changed old new) then do
-            n ← createElement api new
+            n ← createElement  new
             api.replaceChild n me parent
           else do
             _ <- case old, new of
               Element {props: oldProps}, Element {props: newProps} ->
-                updateProps api me oldProps newProps
+                updateProps  me oldProps newProps
               _, _ -> pure unit
             walkChildren me old new
 
-    walkChildren :: ef -> Html msg -> Html msg -> Effect Unit
+    walkChildren :: Node -> Html msg -> Html msg -> Effect Unit
     walkChildren target (Element old) (Element new) = do
         if (oldLength > newLength)
           then do

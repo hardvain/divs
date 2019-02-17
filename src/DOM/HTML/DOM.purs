@@ -1,6 +1,6 @@
 module DOM.HTML.DOM (api) where
 
-import DOM.VirtualDOM (DomApi)
+import DOM.API (DomApi)
 
 import Data.Maybe (Maybe(..))
 import Effect (Effect)

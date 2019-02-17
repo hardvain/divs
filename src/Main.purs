@@ -1,7 +1,6 @@
 module Main where
   
-import DOM.HTML.DOM (api)
-import DOM.VirtualDOM (App, EventListener(..), Html, h, runApp, prop, text, with)
+import DOM.VirtualDOM (App, EventListener(..), Html, h, mount, prop, text, with)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
@@ -18,8 +17,8 @@ appRender model = h "div" (prop [])
 appUpdate :: Model -> Message -> Model
 appUpdate model message = 
   case message of 
-    Succ -> model - 1
-    Pred -> model + 1
+    Succ -> model + 1
+    Pred -> model - 1
 
 type Model = Int
 
@@ -31,4 +30,4 @@ app =
   }
 
 main :: Effect Unit
-main = runApp "main" api app
+main = mount "main" app

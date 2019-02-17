@@ -3,3 +3,4 @@ node_modules/
 output/
 .psc-ide-port
 public/scripts/
+.psci_modules/
