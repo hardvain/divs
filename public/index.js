@@ -3137,7 +3137,20 @@ var PS = {};
   var Data_Map_Internal = PS["Data.Map.Internal"];
   var Data_Ord = PS["Data.Ord"];
   var Data_Tuple = PS["Data.Tuple"];
-  var Prelude = PS["Prelude"];
+  var Prelude = PS["Prelude"];                 
+  var withProps = function (v) {
+      return function (v1) {
+          if (v instanceof DOM_VirtualDOM.Element) {
+              return DOM_VirtualDOM.Element.create({
+                  name: v.value0.name,
+                  props: Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)(v1),
+                  listeners: v.value0.listeners,
+                  children: v.value0.children
+              });
+          };
+          return v;
+      };
+  };
   var withChildren = function (v) {
       return function (v1) {
           if (v instanceof DOM_VirtualDOM.Element) {
@@ -3151,15 +3164,18 @@ var PS = {};
           return v;
       };
   };
+  exports["withProps"] = withProps;
   exports["withChildren"] = withChildren;
 })(PS["DOM.Combinators"] = PS["DOM.Combinators"] || {});
 (function(exports) {
     "use strict";
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
   var Data_Map = PS["Data.Map"];
-  var Data_Map_Internal = PS["Data.Map.Internal"];                 
+  var Data_Map_Internal = PS["Data.Map.Internal"];               
+  var div = DOM_VirtualDOM.h("div")(Data_Map_Internal.empty)([  ]);
   var code = DOM_VirtualDOM.h("code")(Data_Map_Internal.empty)([  ]);
   exports["code"] = code;
+  exports["div"] = div;
 })(PS["DOM.Elements"] = PS["DOM.Elements"] || {});
 (function(exports) {
     "use strict";
@@ -3205,11 +3221,11 @@ var PS = {};
           if (message instanceof Pred) {
               return model - 1 | 0;
           };
-          throw new Error("Failed pattern match at Main (line 24, column 3 - line 28, column 1): " + [ message.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 25, column 3 - line 29, column 1): " + [ message.constructor.name ]);
       };
   };
   var appRender = function (model) {
-      return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.h("h1")(DOM_VirtualDOM.prop([ new Data_Tuple.Tuple("style", "color: red") ]))([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ DOM_Events.onClick(function (v) {
+      return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_VirtualDOM.text("children") ]))([ new Data_Tuple.Tuple("style", "color:red") ]), DOM_VirtualDOM.h("h1")(DOM_VirtualDOM.prop([ new Data_Tuple.Tuple("style", "color: red") ]))([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ DOM_Events.onClick(function (v) {
           return Pred.value;
       }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ DOM_Events.onClick(function (v) {
           return Succ.value;

@@ -2,7 +2,7 @@ module Main where
   
 import DOM.VirtualDOM (App, Html, h, mount, prop, text, with)
 import DOM.Events as Events
-import DOM.Elements as Elements
+import DOM.Elements
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
@@ -12,10 +12,11 @@ data Message = Succ | Pred
 
 appRender :: Model -> Html Message
 appRender model = h "div" (prop [])
-  [ h "h1" (prop ["style" /\ ("color: red")]) [text $ show model]
+  [ div >$> [text "children"] >*> ["style" /\ "color:red"]
+  ,  h "h1" (prop ["style" /\ ("color: red")]) [text $ show model]
   , with (h "button" (prop []) [text "pred"]) [Events.onClick \_ -> Pred]
   , with (h "button" (prop []) [text "succ"]) [Events.onClick \_ -> Succ]
-  , Elements.code >$> [text "value"]
+  , code >$> [text "value"]
   , h "ul" (prop []) [h "li" (prop []) [text "1"], h "li" (prop []) [text "2"], h "li" (prop []) [text "3"]]
   ]
 
