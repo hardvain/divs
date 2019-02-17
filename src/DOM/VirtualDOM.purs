@@ -9,8 +9,10 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
 import Data.Set as Set
 import Data.Show (class Show)
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple, fst, snd)
+import Data.Tuple.Nested ((/\))
 import Effect (Effect)
+import Effect.Console (log)
 import Effect.Ref as Ref
 import FRP.Event as Event
 import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip, (<<<))
@@ -57,6 +59,9 @@ h name props children = Element {name, props, children, listeners: []}
 
 prop :: Array (Tuple String String) -> Props
 prop = Map.fromFoldable
+
+fromProps :: Props -> Array (Tuple String String)
+fromProps = Map.toUnfoldable
 
 with :: forall msg
   . Html msg 
@@ -107,7 +112,7 @@ createElement (Text t) callback = api.createTextNode t
 
 setAttributes :: forall msg. Html msg -> Node -> Effect Node
 setAttributes (Element e) element = do
-  _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v element) e.props)
+  _ <- Foldable.for_ (fromProps e.props) (\t -> api.setAttribute (fst t) (snd t) element)
   pure element
 setAttributes _ element = pure element
 
@@ -118,7 +123,7 @@ appendChild  html@(Element e) callback target = do
   pure target
     where 
       attach ::  Html msg -> Effect Unit
-      attach    child = createElement child callback >>= (flip api.appendChild) target
+      attach child = createElement child callback >>= (flip api.appendChild) target
 appendChild  (Text t) callback target = api.createTextNode t
 
 addListener :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
