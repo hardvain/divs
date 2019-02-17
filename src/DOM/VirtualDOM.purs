@@ -13,7 +13,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip)
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip, (<<<))
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 
@@ -110,26 +110,11 @@ createElement (Element e) callback = do
 createElement (Text t) callback = api.createTextNode t
 
 
-appendChild 
-  :: forall  msg
-  .  Node 
-  -> Html msg 
-  -> EventCallback msg
-  -> Effect Unit
+appendChild :: forall msg. Node -> Html msg -> EventCallback msg -> Effect Unit
 appendChild parent child callback = createElement child callback >>= (flip api.appendChild) parent
 
-addListener 
-  :: forall msg
-  .  Node 
-  -> EventListener msg 
-  -> EventCallback msg
-  -> Effect Unit
-addListener target (On name handler) callback  = do
-  api.addEventListener name eventHandler target
-    where
-      eventHandler = \eventData -> do
-        let result = handler eventData
-        callback result
+addListener :: forall msg. Node -> EventListener msg -> EventCallback msg -> Effect Unit
+addListener target (On name handler) callback = api.addEventListener name (callback <<< handler) target
 
 changed :: forall msg. Html msg -> Html msg -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
