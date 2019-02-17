@@ -112,13 +112,12 @@ setAttributes (Element e) element = do
   pure element
 setAttributes _ element = pure element
 
-
 appendChild :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
 appendChild  html@(Element e) callback target = do
   _ <- Foldable.for_ e.children attach 
   pure target
     where 
-      attach ::  Html msg -> Effect Unit
+      attach :: Html msg -> Effect Unit
       attach child = createElement child callback >>= (flip api.appendChild) target
 appendChild  (Text t) callback target = api.createTextNode t
 
