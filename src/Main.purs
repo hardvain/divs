@@ -16,6 +16,7 @@ appRender model = h "div" (prop [])
   [ h "h1" (prop ["style" /\ ("color: red")]) [text $ show model ]
   , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> Pred]
   , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> Succ]
+  , h "ul" (prop []) [h "li" (prop []) [text "1"], h "li" (prop []) [text "2"], h "li" (prop []) [text "3"]]
   ]
 
 appUpdate :: Model -> Message -> Model

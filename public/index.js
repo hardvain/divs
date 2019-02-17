@@ -3171,7 +3171,7 @@ var PS = {};
           if (message instanceof Pred) {
               return model - 1 | 0;
           };
-          throw new Error("Failed pattern match at Main (line 23, column 3 - line 27, column 1): " + [ message.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 24, column 3 - line 28, column 1): " + [ message.constructor.name ]);
       };
   };
   var appRender = function (model) {
@@ -3179,7 +3179,7 @@ var PS = {};
           return Pred.value;
       }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ new DOM_VirtualDOM.On("click", function (v) {
           return Succ.value;
-      }) ]) ]);
+      }) ]), DOM_VirtualDOM.h("ul")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("1") ]), DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("2") ]), DOM_VirtualDOM.h("li")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("3") ]) ]) ]);
   };
   var app = {
       render: appRender,
