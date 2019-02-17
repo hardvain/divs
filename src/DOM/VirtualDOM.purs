@@ -91,10 +91,9 @@ runAppOnMessage nodeToMount app maybeMsg = do
                         Nothing -> oldModel
   let htmlToRender = (app.render modelToRender)
   currentMessage <- Ref.new htmlToRender
-
   event <- Event.create :: Effect { event :: Event.Event msg, push :: msg -> Effect Unit }
   _ <- Event.subscribe event.event (\i -> callback i nodeToMount app currentState currentMessage event.push)
-  updateLoop nodeToMount htmlToRender event.push
+  patch nodeToMount Nothing (Just htmlToRender) event.push
 
 callback :: forall msg model. Show msg => msg -> Node -> App model msg -> Ref.Ref model -> Ref.Ref  (Html msg) -> (msg -> Effect Unit) -> Effect Unit
 callback newMsg nodeToMount app modelRef htmlRef channel = do
@@ -105,11 +104,6 @@ callback newMsg nodeToMount app modelRef htmlRef channel = do
   let htmlToRender = (app.render modelToRender)
   patch nodeToMount (Just oldHtml) (Just htmlToRender) channel
   
-
-updateLoop :: forall msg. Show msg => Node -> Html msg -> (msg -> Effect Unit) -> Effect Unit
-updateLoop nodeToMount htmlToRender channel = do
-  createdElement <- createElement htmlToRender channel
-  api.appendChild createdElement nodeToMount
 
 createElement 
   :: forall  msg
