@@ -1996,7 +1996,7 @@ var PS = {};
       if (v instanceof Text) {
           return DOM_HTML_DOM.api.createTextNode(v.value0);
       };
-      throw new Error("Failed pattern match at DOM.VirtualDOM (line 76, column 1 - line 76, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at DOM.VirtualDOM (line 76, column 1 - line 76, column 54): " + [ v.constructor.name ]);
   };
   var appendChild$prime = function (parent) {
       return function (child) {
