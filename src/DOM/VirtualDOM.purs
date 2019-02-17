@@ -13,7 +13,7 @@ import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
 import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip)
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 
@@ -115,11 +115,8 @@ appendChild
   .  Node 
   -> Html msg 
   -> EventCallback msg
-  -> Effect Node
-appendChild parent child callback = do
-  createdChild <- createElement child callback
-  _ <- api.appendChild createdChild parent 
-  pure createdChild
+  -> Effect Unit
+appendChild parent child callback = createElement child callback >>= (flip api.appendChild) parent
 
 addListener 
   :: forall msg

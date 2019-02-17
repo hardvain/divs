@@ -2874,7 +2874,7 @@ var PS = {};
                   if (v1 instanceof Data_Maybe.Nothing && v instanceof Data_Maybe.Nothing) {
                       return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                   };
-                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 149, column 7 - line 153, column 38): " + [ v1.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 146, column 7 - line 150, column 38): " + [ v1.constructor.name, v.constructor.name ]);
               };
               return Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Set.foldableSet)(update)(Data_Map.keys(Data_Map_Internal.union(Data_Ord.ordString)(old)($$new)));
           };
@@ -2946,11 +2946,7 @@ var PS = {};
   var appendChild = function (parent) {
       return function (child) {
           return function (callback) {
-              return function __do() {
-                  var v = createElement(child)(callback)();
-                  var v1 = DOM_HTML_DOM.api.appendChild(v)(parent)();
-                  return v;
-              };
+              return Control_Bind.bind(Effect.bindEffect)(createElement(child)(callback))(Data_Function.flip(DOM_HTML_DOM.api.appendChild)(parent));
           };
       };
   };
@@ -2962,15 +2958,15 @@ var PS = {};
                       return function (v1) {
                           return function (v2) {
                               if (v1 instanceof Element && v2 instanceof Element) {
-                                  var walkIndexes = function ($114) {
+                                  var walkIndexes = function ($111) {
                                       return Data_Foldable.sequence_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (i) {
                                           return patchIndexed(v)(Data_Array.index(v1.value0.children)(i))(Data_Array.index(v2.value0.children)(i))(i);
-                                      })($114));
+                                      })($111));
                                   };
                                   var oldLength = Data_Array.length(v1.value0.children);
                                   var newLength = Data_Array.length(v2.value0.children);
-                                  var $71 = oldLength > newLength;
-                                  if ($71) {
+                                  var $68 = oldLength > newLength;
+                                  if ($68) {
                                       return function __do() {
                                           var v3 = walkIndexes(Data_Array.range(0)(newLength - 1 | 0))();
                                           return walkIndexes(Data_Array.range(oldLength - 1 | 0)(newLength))();
@@ -3004,7 +3000,7 @@ var PS = {};
                                           if (v4 instanceof Data_Maybe.Nothing) {
                                               return Data_Unit.unit;
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 171, column 7 - line 173, column 29): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 168, column 7 - line 170, column 29): " + [ v4.constructor.name ]);
                                       };
                                   };
                                   if (v1 instanceof Data_Maybe.Just && (v1.value0 instanceof Text && (v2 instanceof Data_Maybe.Just && v2.value0 instanceof Text))) {
@@ -3022,8 +3018,8 @@ var PS = {};
                                               return Data_Unit.unit;
                                           };
                                           if (v4 instanceof Data_Maybe.Just) {
-                                              var $91 = changed(v1.value0)(v2.value0);
-                                              if ($91) {
+                                              var $88 = changed(v1.value0)(v2.value0);
+                                              if ($88) {
                                                   var v5 = createElement(v2.value0)(callback)();
                                                   return DOM_HTML_DOM.api.replaceChild(v5)(v4.value0)(v)();
                                               };
@@ -3035,10 +3031,10 @@ var PS = {};
                                               })();
                                               return walkChildren(v4.value0)(v1.value0)(v2.value0)();
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 182, column 7 - line 193, column 36): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 179, column 7 - line 190, column 36): " + [ v4.constructor.name ]);
                                       };
                                   };
-                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 163, column 5 - line 163, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
+                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 160, column 5 - line 160, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
                               };
                           };
                       };
