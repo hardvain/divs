@@ -65,18 +65,20 @@ with (Element n) listeners = Element $ n {listeners = listeners}
 with n _ = n
 
 text :: forall msg
-  . String 
+  .  String 
   -> Html msg
 text = Text
 
-mount :: forall model msg
-  . (Show msg) => String 
+mount 
+  :: forall model msg
+  .  String 
   -> App model msg 
   -> Effect Unit
 mount nodeToMount app =  api.getElementById "main" >>= traverse_ (runApp app)
 
-runApp :: forall msg model
-  . (Show msg) => App model msg 
+runApp 
+  :: forall msg model
+  .  App model msg 
   -> Node 
   -> Effect Unit
 runApp app nodeToMount = do
@@ -88,8 +90,9 @@ runApp app nodeToMount = do
   _ <- Event.subscribe event.event $ onMessage nodeToMount app appState event.push
   patch nodeToMount Nothing (Just htmlToRender) event.push
 
-onMessage :: forall msg model
-  . Show msg => Node 
+onMessage 
+  :: forall msg model
+  .  Node 
   -> App model msg 
   -> AppState model msg 
   -> EventCallback msg
@@ -105,8 +108,8 @@ onMessage  nodeToMount app {model:modelRef,html:htmlRef} eventCallback newMsg = 
   
 
 createElement 
-  :: forall  msg
-  .  (Show msg) => Html msg 
+  :: forall msg
+  .  Html msg 
   -> EventCallback msg 
   -> Effect Node
 createElement (Element e) callback = do
@@ -118,8 +121,9 @@ createElement (Element e) callback = do
 createElement (Text t) callback = api.createTextNode t
 
 
-appendChild' :: forall  msg
-  . (Show msg) => Node 
+appendChild' 
+  :: forall  msg
+  .  Node 
   -> Html msg 
   -> EventCallback msg
   -> Effect Node
@@ -128,8 +132,9 @@ appendChild' parent child callback = do
   _ <- api.appendChild createdChild parent 
   pure createdChild
 
-addListener :: forall msg
-  . (Show msg) => Node 
+addListener 
+  :: forall msg
+  .  Node 
   -> EventListener msg 
   -> EventCallback msg
   -> Effect Unit
@@ -140,8 +145,9 @@ addListener target (On name handler) callback  = do
         let result = handler eventData
         callback result
 
-changed :: forall msg
-  . (Show msg) => Html msg 
+changed 
+  :: forall msg
+  .  Html msg 
   -> Html msg 
   -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
@@ -162,7 +168,7 @@ updateProps target old new = do
         Nothing, Nothing -> pure unit
 
 patch :: forall msg
-  . (Show msg) => Node 
+  .  Node 
   -> Maybe (Html msg) 
   -> Maybe (Html msg) 
   -> EventCallback msg

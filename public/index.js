@@ -2874,7 +2874,7 @@ var PS = {};
                   if (v1 instanceof Data_Maybe.Nothing && v instanceof Data_Maybe.Nothing) {
                       return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                   };
-                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 158, column 7 - line 162, column 38): " + [ v1.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 164, column 7 - line 168, column 38): " + [ v1.constructor.name, v.constructor.name ]);
               };
               return Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Set.foldableSet)(update)(Data_Map.keys(Data_Map_Internal.union(Data_Ord.ordString)(old)($$new)));
           };
@@ -2894,213 +2894,197 @@ var PS = {};
           };
       };
   };
-  var changed = function (dictShow) {
-      return function (v) {
-          return function (v1) {
-              if (v instanceof Element && v1 instanceof Element) {
-                  return v.value0.name !== v1.value0.name;
-              };
-              if (v instanceof Text && v1 instanceof Text) {
-                  return v.value0 !== v1.value0;
-              };
-              return true;
+  var changed = function (v) {
+      return function (v1) {
+          if (v instanceof Element && v1 instanceof Element) {
+              return v.value0.name !== v1.value0.name;
           };
+          if (v instanceof Text && v1 instanceof Text) {
+              return v.value0 !== v1.value0;
+          };
+          return true;
       };
   };
-  var addListener = function (dictShow) {
-      return function (target) {
-          return function (v) {
-              return function (callback) {
-                  var eventHandler = function (eventData) {
-                      var result = v.value1(eventData);
-                      return callback(result);
-                  };
-                  return DOM_HTML_DOM.api.addEventListener(v.value0)(eventHandler)(target);
-              };
-          };
-      };
-  };
-  var createElement = function (dictShow) {
+  var addListener = function (target) {
       return function (v) {
           return function (callback) {
-              if (v instanceof Element) {
-                  return function __do() {
-                      var v1 = DOM_HTML_DOM.api.createElement(v.value0.name)();
-                      var v2 = Data_Foldable.traverse_(Control_Applicative.applicativeFn)(Data_Map_Internal.foldableMap)(function (v2) {
-                          return function (k) {
-                              return function (v3) {
-                                  return DOM_HTML_DOM.api.setAttribute(k)(v3)(v1);
-                              };
-                          };
-                      })(v.value0.props);
-                      var v3 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (listener) {
-                          return addListener(dictShow)(v1)(listener)(callback);
-                      })(v.value0.listeners)();
-                      var v4 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (child) {
-                          return appendChild$prime(dictShow)(v1)(child)(callback);
-                      })(v.value0.children)();
-                      return v1;
-                  };
+              var eventHandler = function (eventData) {
+                  var result = v.value1(eventData);
+                  return callback(result);
               };
-              if (v instanceof Text) {
-                  return DOM_HTML_DOM.api.createTextNode(v.value0);
-              };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 107, column 1 - line 111, column 17): " + [ v.constructor.name, callback.constructor.name ]);
+              return DOM_HTML_DOM.api.addEventListener(v.value0)(eventHandler)(target);
           };
       };
   };
-  var appendChild$prime = function (dictShow) {
-      return function (parent) {
-          return function (child) {
-              return function (callback) {
-                  return function __do() {
-                      var v = createElement(dictShow)(child)(callback)();
-                      var v1 = DOM_HTML_DOM.api.appendChild(v)(parent)();
-                      return v;
-                  };
-              };
-          };
-      };
-  };
-  var patch = function (dictShow) {
-      return function (target$prime) {
-          return function (old$prime) {
-              return function (new$prime) {
-                  return function (callback) {
-                      var walkChildren = function (v) {
-                          return function (v1) {
-                              return function (v2) {
-                                  if (v1 instanceof Element && v2 instanceof Element) {
-                                      var walkIndexes = function ($122) {
-                                          return Data_Foldable.sequence_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (i) {
-                                              return patchIndexed(v)(Data_Array.index(v1.value0.children)(i))(Data_Array.index(v2.value0.children)(i))(i);
-                                          })($122));
-                                      };
-                                      var oldLength = Data_Array.length(v1.value0.children);
-                                      var newLength = Data_Array.length(v2.value0.children);
-                                      var $79 = oldLength > newLength;
-                                      if ($79) {
-                                          return function __do() {
-                                              var v3 = walkIndexes(Data_Array.range(0)(newLength - 1 | 0))();
-                                              return walkIndexes(Data_Array.range(oldLength - 1 | 0)(newLength))();
-                                          };
-                                      };
-                                      return walkIndexes(Data_Array.range(0)(newLength - 1 | 0));
-                                  };
-                                  return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-                              };
-                          };
-                      };
-                      var patchIndexed = function (v) {
-                          return function (v1) {
-                              return function (v2) {
-                                  return function (v3) {
-                                      if (v1 instanceof Data_Maybe.Nothing && v2 instanceof Data_Maybe.Nothing) {
-                                          return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-                                      };
-                                      if (v1 instanceof Data_Maybe.Nothing && v2 instanceof Data_Maybe.Just) {
-                                          return function __do() {
-                                              var v4 = createElement(dictShow)(v2.value0)(callback)();
-                                              return DOM_HTML_DOM.api.appendChild(v4)(v)();
-                                          };
-                                      };
-                                      if (v1 instanceof Data_Maybe.Just && v2 instanceof Data_Maybe.Nothing) {
-                                          return function __do() {
-                                              var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
-                                              if (v4 instanceof Data_Maybe.Just) {
-                                                  return DOM_HTML_DOM.api.removeChild(v4.value0)(v)();
-                                              };
-                                              if (v4 instanceof Data_Maybe.Nothing) {
-                                                  return Data_Unit.unit;
-                                              };
-                                              throw new Error("Failed pattern match at DOM.VirtualDOM (line 180, column 7 - line 182, column 29): " + [ v4.constructor.name ]);
-                                          };
-                                      };
-                                      if (v1 instanceof Data_Maybe.Just && (v1.value0 instanceof Text && (v2 instanceof Data_Maybe.Just && v2.value0 instanceof Text))) {
-                                          return Control_Applicative.when(Effect.applicativeEffect)(v1.value0.value0 !== v2.value0.value0)(function __do() {
-                                              var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
-                                              return Data_Maybe.maybe(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))(function (t) {
-                                                  return DOM_HTML_DOM.api.setTextContent(v2.value0.value0)(t);
-                                              })(v4)();
-                                          });
-                                      };
-                                      if (v1 instanceof Data_Maybe.Just && v2 instanceof Data_Maybe.Just) {
-                                          return function __do() {
-                                              var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
-                                              if (v4 instanceof Data_Maybe.Nothing) {
-                                                  return Data_Unit.unit;
-                                              };
-                                              if (v4 instanceof Data_Maybe.Just) {
-                                                  var $99 = changed(dictShow)(v1.value0)(v2.value0);
-                                                  if ($99) {
-                                                      var v5 = createElement(dictShow)(v2.value0)(callback)();
-                                                      return DOM_HTML_DOM.api.replaceChild(v5)(v4.value0)(v)();
-                                                  };
-                                                  var v5 = (function () {
-                                                      if (v1.value0 instanceof Element && v2.value0 instanceof Element) {
-                                                          return updateProps(v4.value0)(v1.value0.value0.props)(v2.value0.value0.props)();
-                                                      };
-                                                      return Data_Unit.unit;
-                                                  })();
-                                                  return walkChildren(v4.value0)(v1.value0)(v2.value0)();
-                                              };
-                                              throw new Error("Failed pattern match at DOM.VirtualDOM (line 191, column 7 - line 202, column 36): " + [ v4.constructor.name ]);
-                                          };
-                                      };
-                                      throw new Error("Failed pattern match at DOM.VirtualDOM (line 172, column 5 - line 172, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
-                                  };
-                              };
-                          };
-                      };
-                      return patchIndexed(target$prime)(old$prime)(new$prime)(0);
-                  };
-              };
-          };
-      };
-  };
-  var onMessage = function (dictShow) {
-      return function (nodeToMount) {
-          return function (app) {
-              return function (v) {
-                  return function (eventCallback) {
-                      return function (newMsg) {
-                          return function __do() {
-                              var v1 = Effect_Ref.read(v.model)();
-                              var newModel = app.update(v1)(newMsg);
-                              var v2 = Effect_Ref.write(newModel)(v.model)();
-                              var v3 = Effect_Ref.read(v.html)();
-                              var newHtml = app.render(newModel);
-                              return patch(dictShow)(nodeToMount)(new Data_Maybe.Just(v3))(new Data_Maybe.Just(newHtml))(eventCallback)();
-                          };
-                      };
-                  };
-              };
-          };
-      };
-  };
-  var runApp = function (dictShow) {
-      return function (app) {
-          return function (nodeToMount) {
+  var createElement = function (v) {
+      return function (callback) {
+          if (v instanceof Element) {
               return function __do() {
-                  var v = Effect_Ref["new"](app.init)();
-                  var htmlToRender = app.render(app.init);
-                  var v1 = Effect_Ref["new"](htmlToRender)();
-                  var appState = {
-                      model: v,
-                      html: v1
-                  };
-                  var v2 = FRP_Event.create();
-                  var v3 = FRP_Event.subscribe(v2.event)(onMessage(dictShow)(nodeToMount)(app)(appState)(v2.push))();
-                  return patch(dictShow)(nodeToMount)(Data_Maybe.Nothing.value)(new Data_Maybe.Just(htmlToRender))(v2.push)();
+                  var v1 = DOM_HTML_DOM.api.createElement(v.value0.name)();
+                  var v2 = Data_Foldable.traverse_(Control_Applicative.applicativeFn)(Data_Map_Internal.foldableMap)(function (v2) {
+                      return function (k) {
+                          return function (v3) {
+                              return DOM_HTML_DOM.api.setAttribute(k)(v3)(v1);
+                          };
+                      };
+                  })(v.value0.props);
+                  var v3 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (listener) {
+                      return addListener(v1)(listener)(callback);
+                  })(v.value0.listeners)();
+                  var v4 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (child) {
+                      return appendChild$prime(v1)(child)(callback);
+                  })(v.value0.children)();
+                  return v1;
+              };
+          };
+          if (v instanceof Text) {
+              return DOM_HTML_DOM.api.createTextNode(v.value0);
+          };
+          throw new Error("Failed pattern match at DOM.VirtualDOM (line 110, column 1 - line 114, column 17): " + [ v.constructor.name, callback.constructor.name ]);
+      };
+  };
+  var appendChild$prime = function (parent) {
+      return function (child) {
+          return function (callback) {
+              return function __do() {
+                  var v = createElement(child)(callback)();
+                  var v1 = DOM_HTML_DOM.api.appendChild(v)(parent)();
+                  return v;
               };
           };
       };
   };
-  var mount = function (dictShow) {
-      return function (nodeToMount) {
-          return function (app) {
-              return Control_Bind.bind(Effect.bindEffect)(DOM_HTML_DOM.api.getElementById("main"))(Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(dictShow)(app)));
+  var patch = function (target$prime) {
+      return function (old$prime) {
+          return function (new$prime) {
+              return function (callback) {
+                  var walkChildren = function (v) {
+                      return function (v1) {
+                          return function (v2) {
+                              if (v1 instanceof Element && v2 instanceof Element) {
+                                  var walkIndexes = function ($114) {
+                                      return Data_Foldable.sequence_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (i) {
+                                          return patchIndexed(v)(Data_Array.index(v1.value0.children)(i))(Data_Array.index(v2.value0.children)(i))(i);
+                                      })($114));
+                                  };
+                                  var oldLength = Data_Array.length(v1.value0.children);
+                                  var newLength = Data_Array.length(v2.value0.children);
+                                  var $71 = oldLength > newLength;
+                                  if ($71) {
+                                      return function __do() {
+                                          var v3 = walkIndexes(Data_Array.range(0)(newLength - 1 | 0))();
+                                          return walkIndexes(Data_Array.range(oldLength - 1 | 0)(newLength))();
+                                      };
+                                  };
+                                  return walkIndexes(Data_Array.range(0)(newLength - 1 | 0));
+                              };
+                              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                          };
+                      };
+                  };
+                  var patchIndexed = function (v) {
+                      return function (v1) {
+                          return function (v2) {
+                              return function (v3) {
+                                  if (v1 instanceof Data_Maybe.Nothing && v2 instanceof Data_Maybe.Nothing) {
+                                      return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                                  };
+                                  if (v1 instanceof Data_Maybe.Nothing && v2 instanceof Data_Maybe.Just) {
+                                      return function __do() {
+                                          var v4 = createElement(v2.value0)(callback)();
+                                          return DOM_HTML_DOM.api.appendChild(v4)(v)();
+                                      };
+                                  };
+                                  if (v1 instanceof Data_Maybe.Just && v2 instanceof Data_Maybe.Nothing) {
+                                      return function __do() {
+                                          var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
+                                          if (v4 instanceof Data_Maybe.Just) {
+                                              return DOM_HTML_DOM.api.removeChild(v4.value0)(v)();
+                                          };
+                                          if (v4 instanceof Data_Maybe.Nothing) {
+                                              return Data_Unit.unit;
+                                          };
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 186, column 7 - line 188, column 29): " + [ v4.constructor.name ]);
+                                      };
+                                  };
+                                  if (v1 instanceof Data_Maybe.Just && (v1.value0 instanceof Text && (v2 instanceof Data_Maybe.Just && v2.value0 instanceof Text))) {
+                                      return Control_Applicative.when(Effect.applicativeEffect)(v1.value0.value0 !== v2.value0.value0)(function __do() {
+                                          var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
+                                          return Data_Maybe.maybe(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))(function (t) {
+                                              return DOM_HTML_DOM.api.setTextContent(v2.value0.value0)(t);
+                                          })(v4)();
+                                      });
+                                  };
+                                  if (v1 instanceof Data_Maybe.Just && v2 instanceof Data_Maybe.Just) {
+                                      return function __do() {
+                                          var v4 = DOM_HTML_DOM.api.childAt(v3)(v)();
+                                          if (v4 instanceof Data_Maybe.Nothing) {
+                                              return Data_Unit.unit;
+                                          };
+                                          if (v4 instanceof Data_Maybe.Just) {
+                                              var $91 = changed(v1.value0)(v2.value0);
+                                              if ($91) {
+                                                  var v5 = createElement(v2.value0)(callback)();
+                                                  return DOM_HTML_DOM.api.replaceChild(v5)(v4.value0)(v)();
+                                              };
+                                              var v5 = (function () {
+                                                  if (v1.value0 instanceof Element && v2.value0 instanceof Element) {
+                                                      return updateProps(v4.value0)(v1.value0.value0.props)(v2.value0.value0.props)();
+                                                  };
+                                                  return Data_Unit.unit;
+                                              })();
+                                              return walkChildren(v4.value0)(v1.value0)(v2.value0)();
+                                          };
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 197, column 7 - line 208, column 36): " + [ v4.constructor.name ]);
+                                      };
+                                  };
+                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 178, column 5 - line 178, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
+                              };
+                          };
+                      };
+                  };
+                  return patchIndexed(target$prime)(old$prime)(new$prime)(0);
+              };
           };
+      };
+  };
+  var onMessage = function (nodeToMount) {
+      return function (app) {
+          return function (v) {
+              return function (eventCallback) {
+                  return function (newMsg) {
+                      return function __do() {
+                          var v1 = Effect_Ref.read(v.model)();
+                          var newModel = app.update(v1)(newMsg);
+                          var v2 = Effect_Ref.write(newModel)(v.model)();
+                          var v3 = Effect_Ref.read(v.html)();
+                          var newHtml = app.render(newModel);
+                          return patch(nodeToMount)(new Data_Maybe.Just(v3))(new Data_Maybe.Just(newHtml))(eventCallback)();
+                      };
+                  };
+              };
+          };
+      };
+  };
+  var runApp = function (app) {
+      return function (nodeToMount) {
+          return function __do() {
+              var v = Effect_Ref["new"](app.init)();
+              var htmlToRender = app.render(app.init);
+              var v1 = Effect_Ref["new"](htmlToRender)();
+              var appState = {
+                  model: v,
+                  html: v1
+              };
+              var v2 = FRP_Event.create();
+              var v3 = FRP_Event.subscribe(v2.event)(onMessage(nodeToMount)(app)(appState)(v2.push))();
+              return patch(nodeToMount)(Data_Maybe.Nothing.value)(new Data_Maybe.Just(htmlToRender))(v2.push)();
+          };
+      };
+  };
+  var mount = function (nodeToMount) {
+      return function (app) {
+          return Control_Bind.bind(Effect.bindEffect)(DOM_HTML_DOM.api.getElementById("main"))(Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(app)));
       };
   };
   exports["Element"] = Element;
@@ -3171,7 +3155,7 @@ var PS = {};
       update: appUpdate,
       init: 0
   };
-  var main = DOM_VirtualDOM.mount(messageShow)("main")(app);
+  var main = DOM_VirtualDOM.mount("main")(app);
   exports["Succ"] = Succ;
   exports["Pred"] = Pred;
   exports["appRender"] = appRender;
