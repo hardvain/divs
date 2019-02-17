@@ -14,8 +14,8 @@ instance messageShow :: Show Message where
 appRender :: Model -> Html Message
 appRender model = h "div" (prop [])
   [ h "h1" (prop ["style" /\ ("color: red")]) [text $ show model ]
-  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> Succ]
-  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> Pred]
+  , with (h "button" (prop []) [text "pred"]) [On "click" \_ -> Pred]
+  , with (h "button" (prop []) [text "succ"]) [On "click" \_ -> Succ]
   ]
 
 appUpdate :: Model -> Message -> Model

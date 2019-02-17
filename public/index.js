@@ -2134,7 +2134,6 @@ var PS = {};
   var Control_Applicative = PS["Control.Applicative"];
   var Control_Bind = PS["Control.Bind"];
   var Control_Semigroupoid = PS["Control.Semigroupoid"];
-  var DOM_Channel =require("../DOM.Channel/index.js");
   var DOM_HTML_DOM = PS["DOM.HTML.DOM"];
   var Data_Array = PS["Data.Array"];
   var Data_Eq = PS["Data.Eq"];
@@ -2215,50 +2214,57 @@ var PS = {};
           };
       };
   };
-  var addListener = function (target) {
+  var addListener = function (dictShow) {
+      return function (target) {
+          return function (v) {
+              return function (channel) {
+                  var eventHandler = function (eventData) {
+                      var result = v.value1(eventData);
+                      return channel(result);
+                  };
+                  return DOM_HTML_DOM.api.addEventListener(v.value0)(eventHandler)(target);
+              };
+          };
+      };
+  };
+  var createElement = function (dictShow) {
       return function (v) {
           return function (channel) {
-              var eventHandler = function (eventData) {
-                  return channel(v.value1(eventData));
-              };
-              return DOM_HTML_DOM.api.addEventListener(v.value0)(eventHandler)(target);
-          };
-      };
-  };
-  var createElement = function (v) {
-      return function (channel) {
-          if (v instanceof Element) {
-              return function __do() {
-                  var v1 = DOM_HTML_DOM.api.createElement(v.value0.name)();
-                  var v2 = Data_Foldable.traverse_(Control_Applicative.applicativeFn)(Data_Map_Internal.foldableMap)(function (v2) {
-                      return function (k) {
-                          return function (v3) {
-                              return DOM_HTML_DOM.api.setAttribute(k)(v3)(v1);
+              if (v instanceof Element) {
+                  return function __do() {
+                      var v1 = DOM_HTML_DOM.api.createElement(v.value0.name)();
+                      var v2 = Data_Foldable.traverse_(Control_Applicative.applicativeFn)(Data_Map_Internal.foldableMap)(function (v2) {
+                          return function (k) {
+                              return function (v3) {
+                                  return DOM_HTML_DOM.api.setAttribute(k)(v3)(v1);
+                              };
                           };
-                      };
-                  })(v.value0.props);
-                  var v3 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (listener) {
-                      return addListener(v1)(listener)(channel);
-                  })(v.value0.listeners)();
-                  var v4 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (child) {
-                      return appendChild$prime(v1)(child)(channel);
-                  })(v.value0.children)();
-                  return v1;
+                      })(v.value0.props);
+                      var v3 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (listener) {
+                          return addListener(dictShow)(v1)(listener)(channel);
+                      })(v.value0.listeners)();
+                      var v4 = Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableArray)(function (child) {
+                          return appendChild$prime(dictShow)(v1)(child)(channel);
+                      })(v.value0.children)();
+                      return v1;
+                  };
               };
+              if (v instanceof Text) {
+                  return DOM_HTML_DOM.api.createTextNode(v.value0);
+              };
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 101, column 1 - line 105, column 17): " + [ v.constructor.name, channel.constructor.name ]);
           };
-          if (v instanceof Text) {
-              return DOM_HTML_DOM.api.createTextNode(v.value0);
-          };
-          throw new Error("Failed pattern match at DOM.VirtualDOM (line 103, column 1 - line 107, column 17): " + [ v.constructor.name, channel.constructor.name ]);
       };
   };
-  var appendChild$prime = function (parent) {
-      return function (child) {
-          return function (channel) {
-              return function __do() {
-                  var v = createElement(child)(channel)();
-                  var v1 = DOM_HTML_DOM.api.appendChild(v)(parent)();
-                  return v;
+  var appendChild$prime = function (dictShow) {
+      return function (parent) {
+          return function (child) {
+              return function (channel) {
+                  return function __do() {
+                      var v = createElement(dictShow)(child)(channel)();
+                      var v1 = DOM_HTML_DOM.api.appendChild(v)(parent)();
+                      return v;
+                  };
               };
           };
       };
@@ -2280,21 +2286,14 @@ var PS = {};
                               if (v3 instanceof Data_Maybe.Nothing) {
                                   return oldModel;
                               };
-                              throw new Error("Failed pattern match at DOM.VirtualDOM (line 93, column 23 - line 95, column 44): " + [ v3.constructor.name ]);
+                              throw new Error("Failed pattern match at DOM.VirtualDOM (line 92, column 23 - line 94, column 44): " + [ v3.constructor.name ]);
                           })();
                           var htmlToRender = app.render(modelToRender);
-                          var channel = new DOM_Channel.Channel({
-                              current: v,
-                              past: v1,
-                              handler: function (m) {
-                                  return runAppOnMessage(dictShow)(nodeToMount)(app)(oldModel)(new Data_Maybe.Just(m));
-                              }
-                          });
                           var v3 = FRP_Event.create();
                           var v4 = FRP_Event.subscribe(v3.event)(function (i) {
                               return Effect_Console.log(Data_Show.show(dictShow)(i));
-                          });
-                          var v5 = createElement(htmlToRender)(v3.push)();
+                          })();
+                          var v5 = createElement(dictShow)(htmlToRender)(v3.push)();
                           return DOM_HTML_DOM.api.appendChild(v5)(nodeToMount)();
                       };
                   };
@@ -2333,8 +2332,7 @@ var PS = {};
   exports["mount"] = mount;
 })(PS["DOM.VirtualDOM"] = PS["DOM.VirtualDOM"] || {});
 (function(exports) {
-  // Generated by purs version 0.12.2
-  "use strict";
+    "use strict";
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
   var Data_Function = PS["Data.Function"];
   var Data_Ring = PS["Data.Ring"];
@@ -2380,9 +2378,9 @@ var PS = {};
   };
   var appRender = function (model) {
       return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.h("h1")(DOM_VirtualDOM.prop([ new Data_Tuple.Tuple("style", "color: red") ]))([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ new DOM_VirtualDOM.On("click", function (v) {
-          return Succ.value;
-      }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ new DOM_VirtualDOM.On("click", function (v) {
           return Pred.value;
+      }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ new DOM_VirtualDOM.On("click", function (v) {
+          return Succ.value;
       }) ]) ]);
   };
   var app = {

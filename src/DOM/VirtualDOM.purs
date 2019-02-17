@@ -14,7 +14,6 @@ import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), 
 import Web.DOM.Internal.Types (Node)
 import DOM.HTML.DOM (api)
 import Web.Event.Internal.Types (Event)
-import DOM.Channel (Channel(..), send)
 import FRP.Event as Event
 import Effect.Console
 type App model message =  
@@ -94,15 +93,14 @@ runAppOnMessage nodeToMount app oldModel maybeMsg = do
                         Just model -> model
                         Nothing -> oldModel
   let htmlToRender = (app.render modelToRender)
-  let channel = Channel { current: current , past: past, handler: \m -> runAppOnMessage nodeToMount app oldModel (Just m)}
   event <- Event.create :: Effect { event :: Event.Event msg, push :: msg -> Effect Unit }
-  let _ = Event.subscribe event.event (\i -> log $ show i)
+  _ <-  Event.subscribe event.event (\i -> log $ show i)
   createdElement <- createElement  htmlToRender event.push
   api.appendChild createdElement nodeToMount
 
 createElement 
   :: forall  msg
-  . Html msg 
+  .  (Show msg) => Html msg 
   -> (msg -> Effect Unit) 
   -> Effect Node
 createElement (Element e) channel = do
@@ -114,7 +112,7 @@ createElement (Element e) channel = do
 createElement (Text t) channel = api.createTextNode t
 
 appendChild' :: forall  msg
-  . Node 
+  . (Show msg) => Node 
   -> Html msg 
   -> (msg -> Effect Unit)
   -> Effect Node
@@ -124,7 +122,7 @@ appendChild' parent child channel = do
   pure createdChild
 
 addListener :: forall msg
-  . Node 
+  . (Show msg) => Node 
   -> EventListener msg 
   -> (msg -> Effect Unit)
   -> Effect Unit
@@ -132,10 +130,11 @@ addListener target (On name handler) channel  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
-        channel (handler eventData)
+        let result = handler eventData
+        channel result
 
 changed :: forall msg
-  . Html msg 
+  . (Show msg) => Html msg 
   -> Html msg 
   -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
@@ -156,7 +155,7 @@ updateProps target old new = do
         Nothing, Nothing -> pure unit
 
 patch :: forall msg
-  . Node 
+  . (Show msg) => Node 
   -> Maybe (Html msg) 
   -> Maybe (Html msg) 
   -> (msg -> Effect Unit)
