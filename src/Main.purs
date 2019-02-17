@@ -2,18 +2,18 @@ module Main where
   
 import DOM.VirtualDOM (App, Html, h, mount, prop, text, with)
 import DOM.Events as Events
-import DOM.Elements
+import DOM.Elements (code, div, h1)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
-import DOM.Combinators
+import DOM.Combinators ((>$>), (>*>))
 
 data Message = Succ | Pred 
 
 appRender :: Model -> Html Message
 appRender model = h "div" (prop [])
   [ div >$> [text "children"] >*> ["style" /\ "color:red"]
-  ,  h "h1" (prop ["style" /\ ("color: red")]) [text $ show model]
+  , h1  >$> [text $ show model] >*> ["style" /\ ("color: red")] 
   , with (h "button" (prop []) [text "pred"]) [Events.onClick \_ -> Pred]
   , with (h "button" (prop []) [text "succ"]) [Events.onClick \_ -> Succ]
   , code >$> [text "value"]

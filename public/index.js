@@ -3172,10 +3172,12 @@ var PS = {};
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
   var Data_Map = PS["Data.Map"];
   var Data_Map_Internal = PS["Data.Map.Internal"];               
+  var h1 = DOM_VirtualDOM.h("h1")(Data_Map_Internal.empty)([  ]);
   var div = DOM_VirtualDOM.h("div")(Data_Map_Internal.empty)([  ]);
   var code = DOM_VirtualDOM.h("code")(Data_Map_Internal.empty)([  ]);
   exports["code"] = code;
   exports["div"] = div;
+  exports["h1"] = h1;
 })(PS["DOM.Elements"] = PS["DOM.Elements"] || {});
 (function(exports) {
     "use strict";
@@ -3225,7 +3227,7 @@ var PS = {};
       };
   };
   var appRender = function (model) {
-      return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_VirtualDOM.text("children") ]))([ new Data_Tuple.Tuple("style", "color:red") ]), DOM_VirtualDOM.h("h1")(DOM_VirtualDOM.prop([ new Data_Tuple.Tuple("style", "color: red") ]))([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ DOM_Events.onClick(function (v) {
+      return DOM_VirtualDOM.h("div")(DOM_VirtualDOM.prop([  ]))([ DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.div)([ DOM_VirtualDOM.text("children") ]))([ new Data_Tuple.Tuple("style", "color:red") ]), DOM_Combinators.withProps(DOM_Combinators.withChildren(DOM_Elements.h1)([ DOM_VirtualDOM.text(Data_Show.show(Data_Show.showInt)(model)) ]))([ new Data_Tuple.Tuple("style", "color: red") ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("pred") ]))([ DOM_Events.onClick(function (v) {
           return Pred.value;
       }) ]), DOM_VirtualDOM["with"](DOM_VirtualDOM.h("button")(DOM_VirtualDOM.prop([  ]))([ DOM_VirtualDOM.text("succ") ]))([ DOM_Events.onClick(function (v) {
           return Succ.value;
