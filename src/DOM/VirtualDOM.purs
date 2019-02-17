@@ -10,12 +10,13 @@ import Data.Set as Set
 import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>))
+import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), show)
 import Web.DOM.Internal.Types (Node)
 import DOM.HTML.DOM (api)
 import Web.Event.Internal.Types (Event)
 import DOM.Channel (Channel(..), send)
-
+import FRP.Event as Event
+import Effect.Console
 type App model message =  
   { render :: model -> Html message
   , update :: model -> message -> model
@@ -63,7 +64,7 @@ text :: forall msg
 text = Text
 
 mount :: forall model msg
-  . String 
+  . (Show msg) => String 
   -> App model msg 
   -> Effect Unit
 mount nodeToMount app = do
@@ -72,7 +73,7 @@ mount nodeToMount app = do
   pure unit
 
 runApp :: forall model msg
-  .  App model msg 
+  . (Show msg) => App model msg 
   -> model 
   -> Node 
   -> Effect Unit
@@ -80,7 +81,7 @@ runApp app model nodeToMount = do
   runAppOnMessage nodeToMount  app model Nothing
 
 runAppOnMessage :: forall msg model
-  . Node 
+  . (Show msg) => Node 
   -> App model msg 
   -> model 
   -> Maybe msg 
@@ -94,13 +95,15 @@ runAppOnMessage nodeToMount app oldModel maybeMsg = do
                         Nothing -> oldModel
   let htmlToRender = (app.render modelToRender)
   let channel = Channel { current: current , past: past, handler: \m -> runAppOnMessage nodeToMount app oldModel (Just m)}
-  createdElement <- createElement  htmlToRender channel
+  event <- Event.create :: Effect { event :: Event.Event msg, push :: msg -> Effect Unit }
+  let _ = Event.subscribe event.event (\i -> log $ show i)
+  createdElement <- createElement  htmlToRender event.push
   api.appendChild createdElement nodeToMount
 
 createElement 
   :: forall  msg
   . Html msg 
-  -> Channel msg 
+  -> (msg -> Effect Unit) 
   -> Effect Node
 createElement (Element e) channel = do
   el ← api.createElement e.name
@@ -113,7 +116,7 @@ createElement (Text t) channel = api.createTextNode t
 appendChild' :: forall  msg
   . Node 
   -> Html msg 
-  -> Channel msg 
+  -> (msg -> Effect Unit)
   -> Effect Node
 appendChild' parent child channel = do
   createdChild <- createElement child channel
@@ -123,13 +126,13 @@ appendChild' parent child channel = do
 addListener :: forall msg
   . Node 
   -> EventListener msg 
-  -> Channel msg 
+  -> (msg -> Effect Unit)
   -> Effect Unit
 addListener target (On name handler) channel  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
-        send (handler eventData) channel
+        channel (handler eventData)
 
 changed :: forall msg
   . Html msg 
@@ -156,7 +159,7 @@ patch :: forall msg
   . Node 
   -> Maybe (Html msg) 
   -> Maybe (Html msg) 
-  -> Channel msg 
+  -> (msg -> Effect Unit)
   -> Effect Unit
 patch target' old' new' channel = patchIndexed target' old' new' 0
   where

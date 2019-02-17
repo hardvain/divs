@@ -4,8 +4,12 @@ import DOM.VirtualDOM (App, EventListener(..), Html, h, mount, prop, text, with)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))
 import Data.Tuple.Nested ((/\))
+import Data.Show
 
-data Message = Succ | Pred
+data Message = Succ | Pred 
+instance messageShow :: Show Message where
+  show Succ = "succ"
+  show Pred = "pred"
 
 appRender :: Model -> Html Message
 appRender model = h "div" (prop [])
