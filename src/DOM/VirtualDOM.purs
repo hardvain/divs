@@ -3,7 +3,7 @@ module DOM.VirtualDOM (Html(..), Props, EventListener(..), h, with, prop, text, 
 
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
-import Data.Foldable (traverse_)
+import Data.Foldable (class Foldable, traverse_)
 import Data.Foldable as Foldable
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe)
@@ -16,6 +16,7 @@ import FRP.Event as Event
 import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip, (<<<))
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
+import Web.HTML.HTMLAreaElement (target)
 
 type App model message =  
   { render :: model -> Html message
@@ -96,25 +97,39 @@ onMessage  nodeToMount app {model:modelRef,html:htmlRef} eventCallback newMsg = 
   let newHtml = (app.render newModel)
   patch nodeToMount (Just oldHtml) (Just newHtml) eventCallback
   
-createElement 
-  :: forall msg
-  .  Html msg 
-  -> EventCallback msg 
-  -> Effect Node
-createElement (Element e) callback = do
-  el ← api.createElement e.name
-  _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
-  _ <- Foldable.traverse_ (\listener -> addListener el listener callback)  e.listeners
-  _ <- Foldable.traverse_ (\child -> appendChild el child callback) e.children
-  pure el
+createElement :: forall msg.  Html msg -> EventCallback msg -> Effect Node
+createElement html@(Element e) callback = 
+  api.createElement e.name 
+  >>= setAttributes html 
+  >>= addListener html callback 
+  >>= appendChild html callback
 createElement (Text t) callback = api.createTextNode t
 
+setAttributes :: forall msg. Html msg -> Node -> Effect Node
+setAttributes (Element e) element = do
+  _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v element) e.props)
+  pure element
+setAttributes _ element = pure element
 
-appendChild :: forall msg. Node -> Html msg -> EventCallback msg -> Effect Unit
-appendChild parent child callback = createElement child callback >>= (flip api.appendChild) parent
 
-addListener :: forall msg. Node -> EventListener msg -> EventCallback msg -> Effect Unit
-addListener target (On name handler) callback = api.addEventListener name (callback <<< handler) target
+appendChild :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
+appendChild  html@(Element e) callback target = do
+  _ <- Foldable.traverse_ attach e.children
+  pure target
+    where 
+      attach ::  Html msg -> Effect Unit
+      attach    child = createElement child callback >>= (flip api.appendChild) target
+appendChild  (Text t) callback target = api.createTextNode t
+
+addListener :: forall msg.  Html msg -> EventCallback msg -> Node -> Effect Node
+addListener  (Element e) callback target = do
+  _ <- Foldable.traverse_ attach e.listeners
+  pure target
+    where
+      attach :: EventListener msg -> Effect Unit
+      attach (On name handler) = api.addEventListener name (callback <<< handler) target
+addListener  (Text t) callback target = pure target
+
 
 changed :: forall msg. Html msg -> Html msg -> Boolean
 changed (Element e1) (Element e2) = e1.name /= e2.name
