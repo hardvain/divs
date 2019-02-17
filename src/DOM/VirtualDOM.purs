@@ -109,13 +109,13 @@ createElement
   .  (Show msg) => Html msg 
   -> EventCallback msg 
   -> Effect Node
-createElement (Element e) channel = do
+createElement (Element e) callback = do
   el ← api.createElement e.name
   _ <- pure (Foldable.traverse_ (\_ k v -> api.setAttribute k v el) e.props)
-  _ <- Foldable.traverse_ (\listener -> addListener el listener channel)  e.listeners
-  _ <- Foldable.traverse_ (\child -> appendChild' el child channel) e.children
+  _ <- Foldable.traverse_ (\listener -> addListener el listener callback)  e.listeners
+  _ <- Foldable.traverse_ (\child -> appendChild' el child callback) e.children
   pure el
-createElement (Text t) channel = api.createTextNode t
+createElement (Text t) callback = api.createTextNode t
 
 
 appendChild' :: forall  msg
@@ -123,8 +123,8 @@ appendChild' :: forall  msg
   -> Html msg 
   -> EventCallback msg
   -> Effect Node
-appendChild' parent child channel = do
-  createdChild <- createElement child channel
+appendChild' parent child callback = do
+  createdChild <- createElement child callback
   _ <- api.appendChild createdChild parent 
   pure createdChild
 
@@ -133,12 +133,12 @@ addListener :: forall msg
   -> EventListener msg 
   -> EventCallback msg
   -> Effect Unit
-addListener target (On name handler) channel  = do
+addListener target (On name handler) callback  = do
   api.addEventListener name eventHandler target
     where
       eventHandler = \eventData -> do
         let result = handler eventData
-        channel result
+        callback result
 
 changed :: forall msg
   . (Show msg) => Html msg 
@@ -167,12 +167,12 @@ patch :: forall msg
   -> Maybe (Html msg) 
   -> EventCallback msg
   -> Effect Unit
-patch target' old' new' channel = patchIndexed target' old' new' 0
+patch target' old' new' callback = patchIndexed target' old' new' 0
   where
     patchIndexed :: Node -> Maybe (Html  msg) -> Maybe (Html  msg) -> Int -> Effect Unit
     patchIndexed _ Nothing Nothing _ = pure unit
     patchIndexed parent Nothing (Just new) _ = do
-      el ← createElement new channel
+      el ← createElement new callback
       api.appendChild el parent
 
     patchIndexed parent (Just _) Nothing index = do
@@ -192,7 +192,7 @@ patch target' old' new' channel = patchIndexed target' old' new' 0
         Nothing -> pure unit
         Just me ->
           if (changed old new) then do
-            n ← createElement new channel
+            n ← createElement new callback
             api.replaceChild n me parent
           else do
             _ <- case old, new of
