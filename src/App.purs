@@ -1,20 +1,18 @@
 module App where
 
-
-import DOM.HTML.DOM (api)
-import Data.Array ((!!), length, (..))
-import Data.Foldable as Foldable
 import Data.Map as Map
-import Data.Maybe (Maybe(..), maybe)
-import Data.Set as Set
 import Data.Show (class Show)
-import Data.Tuple (Tuple, fst, snd)
+import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Ref as Ref
-import FRP.Event as Event
-import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip)
-import Web.DOM.Internal.Types (Node)
+import Prelude (Unit, (<>))
 import Web.Event.Internal.Types (Event)
+
+
+type App model message = 
+  { initialState :: model
+  , rootComponent :: Component model message
+  }
 
 type Component model message =  
   { render :: model -> Html message

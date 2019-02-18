@@ -1,7 +1,7 @@
 module DOM.VirtualDOM (h, with, prop, text, createElement, mount) where
  
 
-import App (AppState, Component, EventCallback, EventListener(..), Props, Html(..))
+import App (AppState, Component, EventCallback, EventListener(..), Props, Html(..), App)
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
 import Data.Foldable as Foldable
@@ -40,13 +40,13 @@ with n _ = n
 text :: forall msg. String -> Html msg
 text = Text
 
-mount :: forall model msg. String -> Component model msg -> Effect Unit
+mount :: forall model msg. String -> App model msg -> Effect Unit
 mount nodeToMount app =  api.getElementById nodeToMount >>= Foldable.traverse_ (runApp app)
 
-runApp :: forall msg model. Component model msg -> Node -> Effect Unit
+runApp :: forall msg model. App model msg -> Node -> Effect Unit
 runApp app nodeToMount = do
-  initModel <- Ref.new app.init
-  let htmlToRender = (app.render app.init)
+  initModel <- Ref.new app.initialState
+  let htmlToRender = (app.rootComponent.render app.initialState)
   initHtml <- Ref.new htmlToRender
   let appState = {model: initModel, html: initHtml} 
   event <- Event.create 
@@ -56,17 +56,17 @@ runApp app nodeToMount = do
 onMessage 
   :: forall msg model
   .  Node 
-  -> Component model msg 
+  -> App model msg 
   -> AppState model msg 
   -> EventCallback msg
   -> msg
   -> Effect Unit
 onMessage  nodeToMount app {model:modelRef,html:htmlRef} eventCallback newMsg = do
   oldModel <- Ref.read modelRef
-  let newModel = app.update oldModel newMsg
+  let newModel = app.rootComponent.update oldModel newMsg
   _ <- Ref.write newModel modelRef
   oldHtml <- Ref.read htmlRef
-  let newHtml = (app.render newModel)
+  let newHtml = (app.rootComponent.render newModel)
   patch nodeToMount (Just oldHtml) (Just newHtml) eventCallback
   
 createElement :: forall msg.  Html msg -> EventCallback msg -> Effect Node

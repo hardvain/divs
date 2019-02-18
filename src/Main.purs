@@ -42,11 +42,17 @@ appUpdate model message =
 
 type Model = Int
 
-app :: Component Model Message
-app = 
+rootComponent :: Component Model Message
+rootComponent =
   { render : appRender
   , update : appUpdate
   , init : 0
+  }
+
+app :: App Model Message
+app = 
+  { initialState: 0
+  , rootComponent : rootComponent
   }
 
 main :: Effect Unit
