@@ -1,18 +1,16 @@
 module DOM.Elements where
 
-import App
 import DOM.VirtualDOM
 import Data.Array
+import Data.Either
+import Data.Foldable
 import Data.Tuple
 import Prelude
 
+import App (Attribute(..), Html(..), Component, EventListener(..), Props)
 import Data.Map as Map
-
-data Component msg = Component {
-    attributes :: Array (Tuple String String),
-    value :: Html msg,
-    children :: Array (Component msg)
-}
+import Data.Tuple.Nested ((/\))
+import Web.Event.EventTarget (eventListener)
 
 
 a ∷ forall msg. Html msg
@@ -57,8 +55,26 @@ body = h "body" (Map.empty) []
 br ∷ forall msg. Html msg
 br = h "br" (Map.empty) []
 
-button ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-button attributes listeners children = with (h "button" (Map.fromFoldable attributes) children) listeners
+type PropertyTuple = Tuple String String
+type PropertyTuples = Array PropertyTuple
+type EventListeners msg = Array (EventListener msg)
+
+node ∷ forall msg. String -> Array (Attribute msg) ->  Array (Html msg) -> Html msg
+node nodeName attributes children = mapAttributes attributes html
+    where
+      html = h nodeName Map.empty children
+
+mapAttributes :: forall msg.  Array (Attribute msg) -> Html msg -> Html msg
+mapAttributes attributes html = foldr f html attributes
+    where 
+        f attribute (Element e) = case mapAttribute attribute of
+                                    Left tuple -> Element {name: e.name, children: e.children, listeners:e.listeners,props: Map.insert (fst tuple) (snd tuple) e.props}
+                                    Right eventListener -> Element {name: e.name, children: e.children, props: e.props, listeners: eventListener:e.listeners}
+        f attribute t = t
+
+mapAttribute :: forall msg. Attribute msg -> Either PropertyTuple (EventListener msg)
+mapAttribute (PropertyAttribute k v) = Left $ Tuple k v
+mapAttribute (EventListenerAttribute event handler) = Right $ On event handler
 
 canvas ∷ forall msg. Html msg
 canvas = h "canvas" (Map.empty) []
@@ -69,8 +85,11 @@ caption = h "caption" (Map.empty) []
 cite ∷ forall msg. Html msg
 cite = h "cite" (Map.empty) []
 
-code ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-code attributes listeners children = with (h "code" (Map.fromFoldable attributes) children) listeners
+button ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+button = node "button"
+
+code ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+code = node "code"
 
 col ∷ forall msg. Html msg
 col = h "col" (Map.empty) []
@@ -99,8 +118,8 @@ dfn = h "dfn" (Map.empty) []
 dialog ∷ forall msg. Html msg
 dialog = h "dialog" (Map.empty) []
 
-div ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-div attributes listeners children = with (h "div" (Map.fromFoldable attributes) children) listeners
+div ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+div = node "div"
 
 dl ∷ forall msg. Html msg
 dl = h "dl" (Map.empty) []
@@ -129,8 +148,8 @@ footer = h "footer" (Map.empty) []
 form ∷ forall msg. Html msg
 form = h "form" (Map.empty) []
 
-h1 ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-h1 attributes listeners children = with (h "h1" (Map.fromFoldable attributes) children) listeners
+h1 ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+h1 = node "h1"
 
 h2 ∷ forall msg. Html msg
 h2 = h "h2" (Map.empty) []
@@ -180,8 +199,8 @@ kbd = h "kbd" (Map.empty) []
 label ∷ forall msg. Html msg
 label = h "label" (Map.empty) []
 
-li ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-li attributes listeners children = with (h "li" (Map.fromFoldable attributes) children) listeners
+li ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+li = node "li"
 
 link ∷ forall msg. Html msg
 link= h "link"  (Map.empty) []
@@ -321,8 +340,8 @@ tr = h "tr" (Map.empty) []
 u ∷ forall msg. Html msg
 u = h "u" (Map.empty) []
 
-ul ∷ forall msg. Array (Tuple String String) -> Array (EventListener msg) ->  Array (Html msg) -> Html msg
-ul attributes listeners children = with (h "ul" (Map.fromFoldable attributes) children) listeners
+ul ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
+ul = node "ul"
 
 var ∷ forall msg. Html msg
 var = h "var" (Map.empty) []

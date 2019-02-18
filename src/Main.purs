@@ -1,8 +1,7 @@
 module Main where
   
-import App (App, Component, Html)
+import App (App, Component, Html, Attribute(..))
 import DOM.VirtualDOM (mount, text)
-import DOM.Events (onClick)
 import DOM.Elements (code, div, h1, button, ul, li)
 import Effect (Effect)
 import Prelude (Unit)
@@ -10,6 +9,7 @@ import Data.Tuple.Nested ((/\))
 import Button as B
 import Data.Functor (map)
 import Data.Maybe (Maybe(..))
+import DOM.Attributes
 data Message = Succ | Pred 
 
 fromButtonMessage :: B.Message -> Message
@@ -17,14 +17,14 @@ fromButtonMessage _ = Succ
 
 
 appRender :: Model -> Html Message
-appRender {buttonModel} = div [] [] [ 
-  div ["style" /\ "color:red"] [] [text "children"] 
+appRender {buttonModel} = div []  [ 
+  div [style "color:red"] [text "children"] 
   , map (\_ -> Succ) (B.component.render buttonModel)
-  , h1 ["style" /\ ("color: red")] [] [text "Header"]
-  , button ["style" /\ ("color: red")] [onClick \_ -> Pred] [text "pred"] 
-  , button ["style" /\ ("color: green")] [onClick \_ -> Succ] [text "succ"]
-  , code [] [] [text "value"]
-  , ul [] [] [li [] [] [text "1"], li [] [] [text "2"], li [] [] [text "3"]]
+  , h1 [style "color: #673ab7"] [text "Header"]
+  , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
+  , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
+  , code [] [text "value"]
+  , ul [] [li []  [text "1"], li [] [text "2"], li [] [text "3"]]
   ]
 
 {-

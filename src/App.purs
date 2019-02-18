@@ -26,7 +26,8 @@ type AppState model message = {
   html :: Ref.Ref (Html message)
 }
 
-type Attribute = Tuple String String
+data Attribute msg = PropertyAttribute String String | EventListenerAttribute String (Event -> msg)
+
 
 data EventListener  msg = On String (Event -> msg)
 type EventCallback msg = msg -> Effect Unit
