@@ -1,20 +1,27 @@
 module Main where
   
-import App
+import App (App, Component, Html)
 import DOM.VirtualDOM (mount, text)
 import DOM.Events (onClick)
 import DOM.Elements (code, div, h1, button, ul, li)
 import Effect (Effect)
-import Prelude (Unit, show, ($), (+), (-))
+import Prelude (Unit)
 import Data.Tuple.Nested ((/\))
 import DOM.Combinators ((>->), (>=>), (>~>))
-
+import Button as B
+import Data.Functor (map)
+import Data.Maybe (Maybe(..))
 data Message = Succ | Pred 
 
+fromButtonMessage :: B.Message -> Message
+fromButtonMessage _ = Succ 
+
+
 appRender :: Model -> Html Message
-appRender model = div >->
+appRender {buttonModel} = div >->
   [ div >-> [text "children"] >=> ["style" /\ "color:red"]
-  , h1  >-> [text $ show model] >=> ["style" /\ ("color: red")] 
+  , map (\_ -> Succ) (B.component.render buttonModel)
+  , h1  >-> [text ""] >=> ["style" /\ ("color: red")] 
   , button >-> [text "pred"] >=> ["style" /\ ("color: red")] >~> [onClick \_ -> Pred]
   , button >-> [text "succ"] >=> ["style" /\ ("color: green")] >~> [onClick \_ -> Succ]
   , code >-> [text "value"]
@@ -37,21 +44,24 @@ appRender model = div >->
 appUpdate :: Model -> Message -> Model
 appUpdate model message = 
   case message of 
-    Succ -> model + 1
-    Pred -> model - 1
+    Succ -> { buttonModel: B.Type (Just "succ")}
+    Pred -> { buttonModel: B.Type (Just "pred")}
 
-type Model = Int
+type Model =  
+  { buttonModel :: B.Model
+  } 
+
 
 rootComponent :: Component Model Message
-rootComponent =
+rootComponent = 
   { render : appRender
   , update : appUpdate
-  , init : 0
+  , init : {buttonModel: B.Type (Just "Void")}
   }
 
 app :: App Model Message
 app = 
-  { initialState: 0
+  { initialState: {buttonModel: B.Type (Just "Void")}
   , rootComponent : rootComponent
   }
 
