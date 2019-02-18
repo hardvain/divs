@@ -1,11 +1,10 @@
 module Main where
   
-import App (App, Component, Html, Attribute(..))
+import App (App, Component, Html)
 import DOM.VirtualDOM (mount, text)
-import DOM.Elements (code, div, h1, button, ul, li)
+import DOM.Elements (code, div, h1, button, ul, li, h1_)
 import Effect (Effect)
 import Prelude (Unit)
-import Data.Tuple.Nested ((/\))
 import Button as B
 import Data.Functor (map)
 import Data.Maybe (Maybe(..))
@@ -20,7 +19,7 @@ appRender :: Model -> Html Message
 appRender {buttonModel} = div []  [ 
   div [style "color:red"] [text "children"] 
   , map (\_ -> Succ) (B.component.render buttonModel)
-  , h1 [style "color: #673ab7"] [text "Header"]
+  , h1_ [text "Header"]
   , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
   , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
   , code [] [text "value"]

@@ -3266,7 +3266,7 @@ var PS = {};
       if (v instanceof App.EventListenerAttribute) {
           return Data_Either.Right.create(new App.On(v.value0, v.value1));
       };
-      throw new Error("Failed pattern match at DOM.Elements (line 75, column 1 - line 75, column 86): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at DOM.Elements (line 34, column 1 - line 34, column 86): " + [ v.constructor.name ]);
   };
   var mapAttributes = function (attributes) {
       return function (html1) {
@@ -3290,7 +3290,7 @@ var PS = {};
                               listeners: Data_Array.cons(v1.value0)(v.value0.listeners)
                           });
                       };
-                      throw new Error("Failed pattern match at DOM.Elements (line 70, column 35 - line 72, column 158): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at DOM.Elements (line 29, column 35 - line 31, column 158): " + [ v1.constructor.name ]);
                   };
                   return v;
               };
@@ -3308,17 +3308,17 @@ var PS = {};
   };
   var ul = node("ul");                                               
   var li = node("li");                                           
-  var h1 = node("h1");                                           
+  var h1_ = DOM_VirtualDOM.h("h1")(Data_Map_Internal.empty);     
   var div = node("div");                                           
   var code = node("code");                                               
   var button = node("button");
   exports["node"] = node;
   exports["mapAttributes"] = mapAttributes;
   exports["mapAttribute"] = mapAttribute;
+  exports["div"] = div;
   exports["button"] = button;
   exports["code"] = code;
-  exports["div"] = div;
-  exports["h1"] = h1;
+  exports["h1_"] = h1_;
   exports["li"] = li;
   exports["ul"] = ul;
 })(PS["DOM.Elements"] = PS["DOM.Elements"] || {});
@@ -3372,7 +3372,6 @@ var PS = {};
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
   var Data_Functor = PS["Data.Functor"];
   var Data_Maybe = PS["Data.Maybe"];
-  var Data_Tuple_Nested = PS["Data.Tuple.Nested"];
   var Effect = PS["Effect"];
   var Prelude = PS["Prelude"];                 
   var Succ = (function () {
@@ -3404,13 +3403,13 @@ var PS = {};
                   buttonModel: new Button.Type(new Data_Maybe.Just("pred"))
               };
           };
-          throw new Error("Failed pattern match at Main (line 45, column 3 - line 47, column 49): " + [ message.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 44, column 3 - line 46, column 49): " + [ message.constructor.name ]);
       };
   };
   var appRender = function (v) {
       return DOM_Elements.div([  ])([ DOM_Elements.div([ DOM_Attributes.style("color:red") ])([ DOM_VirtualDOM.text("children") ]), Data_Functor.map(App.functorHtml)(function (v1) {
           return Succ.value;
-      })(Button.component.render(v.buttonModel)), DOM_Elements.h1([ DOM_Attributes.style("color: #673ab7") ])([ DOM_VirtualDOM.text("Header") ]), DOM_Elements.button([ DOM_Attributes.style("color: red"), DOM_Attributes.onClick(function (v1) {
+      })(Button.component.render(v.buttonModel)), DOM_Elements.h1_([ DOM_VirtualDOM.text("Header") ]), DOM_Elements.button([ DOM_Attributes.style("color: red"), DOM_Attributes.onClick(function (v1) {
           return Pred.value;
       }) ])([ DOM_VirtualDOM.text("pred") ]), DOM_Elements.button([ DOM_Attributes.style("color: green"), DOM_Attributes.onClick(function (v1) {
           return Succ.value;
