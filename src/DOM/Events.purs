@@ -1,6 +1,7 @@
 module DOM.Events where
 
 import DOM.VirtualDOM
+import App
 import Web.Event.Internal.Types (Event)
 
 onAbort ∷ forall msg. (Event -> msg) -> EventListener msg

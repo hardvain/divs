@@ -1,7 +1,8 @@
 module Main where
   
-import DOM.VirtualDOM (App, Html, h, mount, prop, text, with)
-import DOM.Events 
+import App
+import DOM.VirtualDOM (mount, text)
+import DOM.Events (onClick)
 import DOM.Elements (code, div, h1, button, ul, li)
 import Effect (Effect)
 import Prelude (Unit, show, ($), (+), (-))

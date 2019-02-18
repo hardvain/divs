@@ -5,7 +5,7 @@ import DOM.VirtualDOM
 import Data.Map as Map
 import Data.Tuple (Tuple)
 import Prelude (($))
-
+import App
 withProps :: forall msg. Html msg -> Array (Tuple String String) -> Html msg
 withProps (Element e) props = Element $ e {props = Map.fromFoldable props}
 withProps t _ = t

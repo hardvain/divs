@@ -2,7 +2,7 @@ module DOM.Elements where
 
 import DOM.VirtualDOM
 import Data.Map as Map
-
+import App
 a ∷ forall msg. Html msg
 a = h "a" (Map.empty) []
 
