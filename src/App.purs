@@ -16,7 +16,7 @@ import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), 
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
 
-type App model message =  
+type Component model message =  
   { render :: model -> Html message
   , update :: model -> message -> model
   , init :: model
@@ -45,3 +45,4 @@ data Html msg
 instance showHtml :: Show (Html msg) where
   show (Element n) = "<Html:" <> n.name <> ">"
   show (Text t) = "\"" <> t <> "\"" 
+

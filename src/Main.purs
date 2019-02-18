@@ -21,6 +21,19 @@ appRender model = div >->
   , ul >-> [li >-> [text "1"], li >-> [text "2"], li >-> [text "3"]]
   ]
 
+{-
+  div [] $ do
+    div [] $ do
+      text "children"
+      text $ show model
+      button [id "sample", class "ant-button", ("data-key","value"), (onClick \_ -> Pred)] >>= text "pred"
+      button [] >>= text "succ"
+      code >>= text "value"
+      ul $ do
+        li (text "1")
+        li (text "2")
+        li (text "3")
+-}
 appUpdate :: Model -> Message -> Model
 appUpdate model message = 
   case message of 
@@ -29,7 +42,7 @@ appUpdate model message =
 
 type Model = Int
 
-app :: App Model Message
+app :: Component Model Message
 app = 
   { render : appRender
   , update : appUpdate

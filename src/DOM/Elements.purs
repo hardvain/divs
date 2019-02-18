@@ -1,8 +1,20 @@
 module DOM.Elements where
 
-import DOM.VirtualDOM
-import Data.Map as Map
 import App
+import DOM.VirtualDOM
+import Data.Array
+import Data.Tuple
+import Prelude
+
+import Data.Map as Map
+
+data Component msg = Component {
+    attributes :: Array (Tuple String String),
+    value :: Html msg,
+    children :: Array (Component msg)
+}
+
+
 a ∷ forall msg. Html msg
 a = h "a" (Map.empty) []
 

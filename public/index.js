@@ -2899,7 +2899,7 @@ var PS = {};
                   if (v1 instanceof Data_Maybe.Nothing && v instanceof Data_Maybe.Nothing) {
                       return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                   };
-                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 116, column 7 - line 120, column 38): " + [ v1.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 117, column 7 - line 121, column 38): " + [ v1.constructor.name, v.constructor.name ]);
               };
               return Data_Foldable.for_(Effect.applicativeEffect)(Data_Set.foldableSet)(Data_Map.keys(Data_Map_Internal.union(Data_Ord.ordString)(old)($$new)))(update);
           };
@@ -2960,7 +2960,7 @@ var PS = {};
               if (v instanceof App.Text) {
                   return Control_Applicative.pure(Effect.applicativeEffect)(target);
               };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 94, column 1 - line 94, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 95, column 1 - line 95, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
           };
       };
   };
@@ -2972,7 +2972,7 @@ var PS = {};
           if (v instanceof App.Text) {
               return DOM_HTML_DOM.api.createTextNode(v.value0);
           };
-          throw new Error("Failed pattern match at DOM.VirtualDOM (line 71, column 1 - line 71, column 75): " + [ v.constructor.name, callback.constructor.name ]);
+          throw new Error("Failed pattern match at DOM.VirtualDOM (line 72, column 1 - line 72, column 75): " + [ v.constructor.name, callback.constructor.name ]);
       };
   };
   var appendChild = function (v) {
@@ -2990,7 +2990,7 @@ var PS = {};
               if (v instanceof App.Text) {
                   return DOM_HTML_DOM.api.createTextNode(v.value0);
               };
-              throw new Error("Failed pattern match at DOM.VirtualDOM (line 85, column 1 - line 85, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
+              throw new Error("Failed pattern match at DOM.VirtualDOM (line 86, column 1 - line 86, column 81): " + [ v.constructor.name, callback.constructor.name, target.constructor.name ]);
           };
       };
   };
@@ -3044,7 +3044,7 @@ var PS = {};
                                           if (v4 instanceof Data_Maybe.Nothing) {
                                               return Data_Unit.unit;
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 138, column 7 - line 140, column 29): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 139, column 7 - line 141, column 29): " + [ v4.constructor.name ]);
                                       };
                                   };
                                   if (v1 instanceof Data_Maybe.Just && (v1.value0 instanceof App.Text && (v2 instanceof Data_Maybe.Just && v2.value0 instanceof App.Text))) {
@@ -3075,10 +3075,10 @@ var PS = {};
                                               })();
                                               return walkChildren(v4.value0)(v1.value0)(v2.value0)();
                                           };
-                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 149, column 7 - line 160, column 36): " + [ v4.constructor.name ]);
+                                          throw new Error("Failed pattern match at DOM.VirtualDOM (line 150, column 7 - line 161, column 36): " + [ v4.constructor.name ]);
                                       };
                                   };
-                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 130, column 5 - line 130, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
+                                  throw new Error("Failed pattern match at DOM.VirtualDOM (line 131, column 5 - line 131, column 89): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name, v3.constructor.name ]);
                               };
                           };
                       };
@@ -3124,7 +3124,7 @@ var PS = {};
   };
   var mount = function (nodeToMount) {
       return function (app) {
-          return Control_Bind.bind(Effect.bindEffect)(DOM_HTML_DOM.api.getElementById("main"))(Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(app)));
+          return Control_Bind.bind(Effect.bindEffect)(DOM_HTML_DOM.api.getElementById(nodeToMount))(Data_Foldable.traverse_(Effect.applicativeEffect)(Data_Foldable.foldableMaybe)(runApp(app)));
       };
   };
   exports["h"] = h;
@@ -3192,8 +3192,11 @@ var PS = {};
   "use strict";
   var App = PS["App"];
   var DOM_VirtualDOM = PS["DOM.VirtualDOM"];
+  var Data_Array = PS["Data.Array"];
   var Data_Map = PS["Data.Map"];
-  var Data_Map_Internal = PS["Data.Map.Internal"];                   
+  var Data_Map_Internal = PS["Data.Map.Internal"];
+  var Data_Tuple = PS["Data.Tuple"];
+  var Prelude = PS["Prelude"];                                       
   var ul = DOM_VirtualDOM.h("ul")(Data_Map_Internal.empty)([  ]);    
   var li = DOM_VirtualDOM.h("li")(Data_Map_Internal.empty)([  ]);
   var h1 = DOM_VirtualDOM.h("h1")(Data_Map_Internal.empty)([  ]);
@@ -3254,7 +3257,7 @@ var PS = {};
           if (message instanceof Pred) {
               return model - 1 | 0;
           };
-          throw new Error("Failed pattern match at Main (line 26, column 3 - line 30, column 1): " + [ message.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 39, column 3 - line 43, column 1): " + [ message.constructor.name ]);
       };
   };
   var appRender = function (model) {

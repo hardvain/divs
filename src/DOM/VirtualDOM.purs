@@ -1,6 +1,7 @@
 module DOM.VirtualDOM (h, with, prop, text, createElement, mount) where
  
 
+import App (AppState, Component, EventCallback, EventListener(..), Props, Html(..))
 import DOM.HTML.DOM (api)
 import Data.Array ((!!), length, (..))
 import Data.Foldable as Foldable
@@ -15,7 +16,7 @@ import FRP.Event as Event
 import Prelude (Unit, bind, map, pure, unit, when, ($), (-), (/=), (<<<), (<>), (>), (>>=), flip)
 import Web.DOM.Internal.Types (Node)
 import Web.Event.Internal.Types (Event)
-import App
+
 h :: forall msg
   . String 
   -> Props 
@@ -39,10 +40,10 @@ with n _ = n
 text :: forall msg. String -> Html msg
 text = Text
 
-mount :: forall model msg. String -> App model msg -> Effect Unit
-mount nodeToMount app =  api.getElementById "main" >>= Foldable.traverse_ (runApp app)
+mount :: forall model msg. String -> Component model msg -> Effect Unit
+mount nodeToMount app =  api.getElementById nodeToMount >>= Foldable.traverse_ (runApp app)
 
-runApp :: forall msg model. App model msg -> Node -> Effect Unit
+runApp :: forall msg model. Component model msg -> Node -> Effect Unit
 runApp app nodeToMount = do
   initModel <- Ref.new app.init
   let htmlToRender = (app.render app.init)
@@ -55,7 +56,7 @@ runApp app nodeToMount = do
 onMessage 
   :: forall msg model
   .  Node 
-  -> App model msg 
+  -> Component model msg 
   -> AppState model msg 
   -> EventCallback msg
   -> msg
