@@ -15,8 +15,8 @@ update :: Model -> Message -> Model
 update model _ = model
 
 render :: Model -> Html Message
-render (Type (Just str)) = button >-> [text str] >=> ["class" /\ str]
-render _ = button >-> [text "Click Me"] 
+render (Type (Just str)) = button ["class" /\ str] [] [text str] 
+render _ = button [] [] [text "Click Me"] 
 
 component :: Component Model Message
 component = 

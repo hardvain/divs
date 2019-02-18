@@ -7,7 +7,6 @@ import DOM.Elements (code, div, h1, button, ul, li)
 import Effect (Effect)
 import Prelude (Unit)
 import Data.Tuple.Nested ((/\))
-import DOM.Combinators ((>->), (>=>), (>~>))
 import Button as B
 import Data.Functor (map)
 import Data.Maybe (Maybe(..))
@@ -18,14 +17,14 @@ fromButtonMessage _ = Succ
 
 
 appRender :: Model -> Html Message
-appRender {buttonModel} = div >->
-  [ div >-> [text "children"] >=> ["style" /\ "color:red"]
+appRender {buttonModel} = div [] [] [ 
+  div ["style" /\ "color:red"] [] [text "children"] 
   , map (\_ -> Succ) (B.component.render buttonModel)
-  , h1  >-> [text ""] >=> ["style" /\ ("color: red")] 
-  , button >-> [text "pred"] >=> ["style" /\ ("color: red")] >~> [onClick \_ -> Pred]
-  , button >-> [text "succ"] >=> ["style" /\ ("color: green")] >~> [onClick \_ -> Succ]
-  , code >-> [text "value"]
-  , ul >-> [li >-> [text "1"], li >-> [text "2"], li >-> [text "3"]]
+  , h1 ["style" /\ ("color: red")] [] [text "Header"]
+  , button ["style" /\ ("color: red")] [onClick \_ -> Pred] [text "pred"] 
+  , button ["style" /\ ("color: green")] [onClick \_ -> Succ] [text "succ"]
+  , code [] [] [text "value"]
+  , ul [] [] [li [] [] [text "1"], li [] [] [text "2"], li [] [] [text "3"]]
   ]
 
 {-
