@@ -21,8 +21,8 @@ type Model =
 render :: Model -> Html Message
 render {buttonModel, textModel} = div []  [ 
   div [style "color:red"] [text "children"] 
-  , unsafeCoerce $ B.component.render buttonModel
-  , unsafeCoerce $ T.component.render textModel
+  , unsafeCoerce $ B.render buttonModel
+  , unsafeCoerce $ T.render textModel
   , h1_ [text "Header"]
   , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
   , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
@@ -34,12 +34,12 @@ render {buttonModel, textModel} = div []  [
 update :: Model -> Message -> Model
 update model message = 
   case message of 
-    Succ -> model { textModel= T.component.update model.textModel T.Succ}
-    Pred -> model { textModel= T.component.update model.textModel T.Pred}
+    Succ -> model { textModel= T.update model.textModel T.Succ}
+    Pred -> model { textModel= T.update model.textModel T.Pred}
 
 
 init :: Model
-init = {buttonModel: B.component.init, textModel: T.component.init}
+init = {buttonModel: B.init, textModel: T.init}
 
 rootComponent :: Component Model Message
 rootComponent = 

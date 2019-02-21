@@ -7,8 +7,8 @@ import Data.Tuple.Nested ((/\))
 import Data.Maybe
 import DOM.Attributes 
 import Prelude
-data Model = Model {
-    type:: Maybe String,
+
+type Model = {
     text :: String
 }
 
@@ -18,11 +18,7 @@ update :: Model -> Message -> Model
 update model _ = model
 
 render :: Model -> Html Message
-render (Model m) = button [] [text m.text] 
+render m = button [] [text m.text] 
 
-component :: Component Model Message
-component = 
-    { render: render
-    , update: update
-    , init: Model { type: Just "primary", text: "Button"}
-    }
+init :: Model
+init =  { text: "Button"}
