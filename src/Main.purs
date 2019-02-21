@@ -18,16 +18,20 @@ type Model =
   { buttonModel :: B.Model, textModel :: T.Model
   } 
 
+incrementButton = button [style ("color: red"), onClick (\_ -> Succ)] [text "succ"]
+decrementButton = button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"]
+listItems = ul_ [li_ [text "1"], li_ [text "2"], li_ [text "3"]]
+
 render :: Model -> Html Message
 render {buttonModel, textModel} = div []  [ 
   div [style "color:red"] [text "children"] 
   , unsafeCoerce $ B.render buttonModel
   , unsafeCoerce $ T.render textModel
   , h1_ [text "Header"]
-  , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
-  , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
+  , decrementButton
+  , incrementButton
   , code_ [text "value"]
-  , ul_ [li_ [text "1"], li_ [text "2"], li_ [text "3"]]
+  , listItems
   ]
 
 

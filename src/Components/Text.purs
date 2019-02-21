@@ -16,7 +16,7 @@ data Message = Succ | Pred
 
 update :: Model -> Message -> Model
 update model Succ = { value :  model.value + 1 }
-update model Pred =  { value :  model.value + 1 }
+update model Pred =  { value :  model.value - 1 }
 
 
 render :: Model -> Html Message
