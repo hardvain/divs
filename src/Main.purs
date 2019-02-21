@@ -9,17 +9,20 @@ import DOM.VirtualDOM (mount, text)
 import Data.Functor (map)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Prelude (Unit, unit)
+import Prelude (Unit, unit, ($))
+import Text as T
+import Unsafe.Coerce (unsafeCoerce)
 
 data Message = Succ | Pred 
 type Model =  
-  { buttonModel :: B.Model
+  { buttonModel :: B.Model, textModel :: T.Model
   } 
 
 render :: Model -> Html Message
-render {buttonModel} = div []  [ 
+render {buttonModel, textModel} = div []  [ 
   div [style "color:red"] [text "children"] 
-  , map (\_ -> Succ) (B.component.render buttonModel)
+  , unsafeCoerce $ B.component.render buttonModel
+  , unsafeCoerce $ T.component.render textModel
   , h1_ [text "Header"]
   , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
   , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
@@ -27,15 +30,16 @@ render {buttonModel} = div []  [
   , ul_ [li_ [text "1"], li_ [text "2"], li_ [text "3"]]
   ]
 
+
 update :: Model -> Message -> Model
 update model message = 
   case message of 
-    Succ -> { buttonModel: B.component.init}
-    Pred -> { buttonModel: B.component.init}
+    Succ -> model { textModel= T.component.update model.textModel T.Succ}
+    Pred -> model { textModel= T.component.update model.textModel T.Pred}
 
 
 init :: Model
-init = {buttonModel: B.component.init}
+init = {buttonModel: B.component.init, textModel: T.component.init}
 
 rootComponent :: Component Model Message
 rootComponent = 

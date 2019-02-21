@@ -1,28 +1,30 @@
-module Button  where
+module Text  where
   
 import App (Html(..), Component(..))
-import DOM.Elements (button)
+import DOM.Elements (span)
 import DOM.VirtualDOM (text)
 import Data.Tuple.Nested ((/\))
 import Data.Maybe
 import DOM.Attributes 
 import Prelude
+
 data Model = Model {
-    type:: Maybe String,
-    text :: String
+    value :: Int
 }
 
-type Message = Unit
+data Message = Succ | Pred
 
 update :: Model -> Message -> Model
-update model _ = model
+update (Model model) Succ = Model { value :  model.value + 1 }
+update (Model model) Pred = Model { value :  model.value + 1 }
+
 
 render :: Model -> Html Message
-render (Model m) = button [] [text m.text] 
+render (Model m) = span [] [text (show m.value)] 
 
 component :: Component Model Message
 component = 
     { render: render
     , update: update
-    , init: Model { type: Just "primary", text: "Button"}
+    , init: Model { value: 0 }
     }
