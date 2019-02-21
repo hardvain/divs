@@ -11,8 +11,7 @@ import Data.Functor
 import Unsafe.Coerce (unsafeCoerce)
 
 type App model message = 
-  { initialState :: model
-  , rootComponent :: Component model message
+  { rootComponent :: Component model message
   }
 
 type Component model message =  
@@ -27,7 +26,9 @@ type AppState model message = {
 }
 
 data Attribute msg = PropertyAttribute String String | EventListenerAttribute String (Event -> msg)
-
+type PropertyTuple = Tuple String String
+type PropertyTuples = Array PropertyTuple
+type EventListeners msg = Array (EventListener msg)
 
 data EventListener  msg = On String (Event -> msg)
 type EventCallback msg = msg -> Effect Unit

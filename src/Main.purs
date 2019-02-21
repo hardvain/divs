@@ -1,66 +1,52 @@
 module Main where
   
+import DOM.Attributes
+
 import App (App, Component, Html)
-import DOM.VirtualDOM (mount, text)
-import DOM.Elements (code, div, h1, button, ul, li, h1_)
-import Effect (Effect)
-import Prelude (Unit)
 import Button as B
+import DOM.Elements (code, div, h1, button, ul, li, h1_, code_, div_, h1_, button_, ul_, li_, h1_)
+import DOM.VirtualDOM (mount, text)
 import Data.Functor (map)
 import Data.Maybe (Maybe(..))
-import DOM.Attributes
+import Effect (Effect)
+import Prelude (Unit, unit)
+
 data Message = Succ | Pred 
+type Model =  
+  { buttonModel :: B.Model
+  } 
 
-fromButtonMessage :: B.Message -> Message
-fromButtonMessage _ = Succ 
-
-
-appRender :: Model -> Html Message
-appRender {buttonModel} = div []  [ 
+render :: Model -> Html Message
+render {buttonModel} = div []  [ 
   div [style "color:red"] [text "children"] 
   , map (\_ -> Succ) (B.component.render buttonModel)
   , h1_ [text "Header"]
   , button [style ("color: red"), onClick (\_ -> Pred)] [text "pred"] 
   , button [style ("color: green"), onClick (\_ -> Succ)] [text "succ"]
-  , code [] [text "value"]
-  , ul [] [li []  [text "1"], li [] [text "2"], li [] [text "3"]]
+  , code_ [text "value"]
+  , ul_ [li_ [text "1"], li_ [text "2"], li_ [text "3"]]
   ]
 
-{-
-  div [] $ do
-    div [] $ do
-      text "children"
-      text $ show model
-      button [id "sample", class "ant-button", ("data-key","value"), (onClick \_ -> Pred)] >>= text "pred"
-      button [] >>= text "succ"
-      code >>= text "value"
-      ul $ do
-        li (text "1")
-        li (text "2")
-        li (text "3")
--}
-appUpdate :: Model -> Message -> Model
-appUpdate model message = 
+update :: Model -> Message -> Model
+update model message = 
   case message of 
-    Succ -> { buttonModel: B.Type (Just "succ")}
-    Pred -> { buttonModel: B.Type (Just "pred")}
+    Succ -> { buttonModel: B.component.init}
+    Pred -> { buttonModel: B.component.init}
 
-type Model =  
-  { buttonModel :: B.Model
-  } 
 
+init :: Model
+init = {buttonModel: B.component.init}
 
 rootComponent :: Component Model Message
 rootComponent = 
-  { render : appRender
-  , update : appUpdate
-  , init : {buttonModel: B.Type (Just "Void")}
+  { render : render
+  , update : update
+  , init : init
   }
 
 app :: App Model Message
 app = 
-  { initialState: {buttonModel: B.Type (Just "Void")}
-  , rootComponent : rootComponent
+  { rootComponent : rootComponent
   }
 
 main :: Effect Unit

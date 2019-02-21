@@ -7,7 +7,11 @@ import DOM.Combinators ((>->), (>=>), (>~>))
 import Data.Tuple.Nested ((/\))
 import Data.Maybe
 import DOM.Attributes 
-data Model = Type (Maybe String)
+
+data Model = Model {
+    type:: Maybe String,
+    text :: String
+}
 
 data Message = Unit
 
@@ -15,12 +19,11 @@ update :: Model -> Message -> Model
 update model _ = model
 
 render :: Model -> Html Message
-render (Type (Just str)) = button [clazz str]  [text str] 
-render _ = button [] [text "Click Me"] 
+render (Model m) = button [] [text m.text] 
 
 component :: Component Model Message
 component = 
     { render: render
     , update: update
-    , init: Type Nothing 
+    , init: Model { type: Just "primary", text: "Button"}
     }

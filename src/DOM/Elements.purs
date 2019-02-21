@@ -7,16 +7,10 @@ import Data.Foldable
 import Data.Tuple
 import Prelude
 
-import App (Attribute(..), Html(..), Component, EventListener(..), Props)
+import App 
 import Data.Map as Map
 import Data.Tuple.Nested ((/\))
 import Web.Event.EventTarget (eventListener)
-
-
-
-type PropertyTuple = Tuple String String
-type PropertyTuples = Array PropertyTuple
-type EventListeners msg = Array (EventListener msg)
 
 node ∷ forall msg. String -> Array (Attribute msg) ->  Array (Html msg) -> Html msg
 node nodeName attributes children = mapAttributes attributes html
@@ -38,324 +32,629 @@ mapAttribute (EventListenerAttribute event handler) = Right $ On event handler
 div ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 div = node "div"
 
+div_ ∷ forall msg. Array (Html msg) -> Html msg
+div_ = node "div" []
+
 button ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 button = node "button"
+
+button_ ∷ forall msg. Array (Html msg) -> Html msg
+button_ = node "button" []
 
 code ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 code = node "code"
 
+code_ ∷ forall msg. Array (Html msg) -> Html msg
+code_ = node "code" []
+
 h1 ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 h1 = node "h1"
 
-h1_ :: forall msg. Array (Html msg) -> Html msg
-h1_ = h "h1" Map.empty
+h1_ ∷ forall msg. Array (Html msg) -> Html msg
+h1_ = node "h1" []
 
 li ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 li = node "li"
 
+li_ ∷ forall msg. Array (Html msg) -> Html msg
+li_ = node "li" []
+
 ul ∷ forall msg. Array (Attribute msg) ->  Array (Html msg) -> Html msg
 ul = node "ul"
 
-a ∷ forall msg. Html msg
-a = h "a" (Map.empty) []
+ul_ ∷ forall msg. Array (Html msg) -> Html msg
+ul_ = node "ul" []
 
-abbr ∷ forall msg. Html msg
-abbr = h "abbr" (Map.empty) []
+a ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+a = node "a"
 
-address ∷ forall msg. Html msg
-address = h "address" (Map.empty) []
+a_ ∷ forall msg. Array (Html msg) -> Html msg
+a_ = node "a" []
 
-area ∷ forall msg. Html msg
-area = h "area" (Map.empty) []
+abbr ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+abbr = node "abbr"
 
-article ∷ forall msg. Html msg
-article = h "article" (Map.empty) []
+abbr_ ∷ forall msg. Array (Html msg) -> Html msg
+abbr_ = node "abbr" []
 
-aside ∷ forall msg. Html msg
-aside = h "aside" (Map.empty) []
+address ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+address = node "address"
 
-audio ∷ forall msg. Html msg
-audio = h "audio" (Map.empty) []
+address_ ∷ forall msg. Array (Html msg) -> Html msg
+address_ = node "address" []
 
-b ∷ forall msg. Html msg
-b = h "b" (Map.empty) []
+area ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+area = node "area"
 
-base ∷ forall msg. Html msg
-base = h "base" (Map.empty) []
+area_ ∷ forall msg. Array (Html msg) -> Html msg
+area_ = node "area" []
 
-bdi ∷ forall msg. Html msg
-bdi = h "bdi" (Map.empty) []
+article ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+article = node "article"
 
-bdo ∷ forall msg. Html msg
-bdo = h "bdo" (Map.empty) []
+article_ ∷ forall msg. Array (Html msg) -> Html msg
+article_ = node "article" []
 
-blockquote ∷ forall msg. Html msg
-blockquote = h "blockquote" (Map.empty) []
+aside ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+aside = node "aside"
 
-body ∷ forall msg. Html msg
-body = h "body" (Map.empty) []
+aside_ ∷ forall msg. Array (Html msg) -> Html msg
+aside_ = node "aside" []
 
-br ∷ forall msg. Html msg
-br = h "br" (Map.empty) []
+audio ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+audio = node "audio"
 
-canvas ∷ forall msg. Html msg
-canvas = h "canvas" (Map.empty) []
+audio_ ∷ forall msg. Array (Html msg) -> Html msg
+audio_ = node "audio" []
 
-caption ∷ forall msg. Html msg
-caption = h "caption" (Map.empty) []
+b ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+b = node "b"
 
-cite ∷ forall msg. Html msg
-cite = h "cite" (Map.empty) []
+b_ ∷ forall msg. Array (Html msg) -> Html msg
+b_ = node "b" []
 
+base ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+base = node "base"
 
-col ∷ forall msg. Html msg
-col = h "col" (Map.empty) []
+base_ ∷ forall msg. Array (Html msg) -> Html msg
+base_ = node "base" []
 
-colgroup ∷ forall msg. Html msg
-colgroup = h "colgroup" (Map.empty) []
+bdi ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+bdi = node "bdi"
 
-command ∷ forall msg. Html msg
-command = h "command" (Map.empty) []
+bdi_ ∷ forall msg. Array (Html msg) -> Html msg
+bdi_ = node "bdi" []
 
-datalist ∷ forall msg. Html msg
-datalist = h "datalist" (Map.empty) []
+bdo ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+bdo = node "bdo"
 
-dd ∷ forall msg. Html msg
-dd = h "dd" (Map.empty) []
+bdo_ ∷ forall msg. Array (Html msg) -> Html msg
+bdo_ = node "bdo" []
 
-del ∷ forall msg. Html msg
-del = h "del" (Map.empty) []
+blockquote ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+blockquote = node "blockquote"
 
-details ∷ forall msg. Html msg
-details = h "details" (Map.empty) []
+blockquote_ ∷ forall msg. Array (Html msg) -> Html msg
+blockquote_ = node "blockquote" []
 
-dfn ∷ forall msg. Html msg
-dfn = h "dfn" (Map.empty) []
+body ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+body = node "body"
 
-dialog ∷ forall msg. Html msg
-dialog = h "dialog" (Map.empty) []
+body_ ∷ forall msg. Array (Html msg) -> Html msg
+body_ = node "body" []
 
+br ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+br = node "br"
 
-dl ∷ forall msg. Html msg
-dl = h "dl" (Map.empty) []
+br_ ∷ forall msg. Array (Html msg) -> Html msg
+br_ = node "br" []
 
-dt ∷ forall msg. Html msg
-dt = h "dt" (Map.empty) []
+canvas ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+canvas = node "canvas"
 
-em ∷ forall msg. Html msg
-em = h "em" (Map.empty) []
+canvas_ ∷ forall msg. Array (Html msg) -> Html msg
+canvas_ = node "canvas" []
 
-embed ∷ forall msg. Html msg
-embed = h "embed" (Map.empty) []
+caption ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+caption = node "caption"
 
-fieldset ∷ forall msg. Html msg
-fieldset = h "fieldset" (Map.empty) []
+caption_ ∷ forall msg. Array (Html msg) -> Html msg
+caption_ = node "caption" []
 
-figcaption ∷ forall msg. Html msg
-figcaption = h "figcaption" (Map.empty) []
+cite ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+cite = node "cite"
 
-figure ∷ forall msg. Html msg
-figure = h "figure" (Map.empty) []
+cite_ ∷ forall msg. Array (Html msg) -> Html msg
+cite_ = node "cite" []
 
-footer ∷ forall msg. Html msg
-footer = h "footer" (Map.empty) []
+col ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+col = node "col"
 
-form ∷ forall msg. Html msg
-form = h "form" (Map.empty) []
+col_ ∷ forall msg. Array (Html msg) -> Html msg
+col_ = node "col" []
 
+colgroup ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+colgroup = node "colgroup"
 
+colgroup_ ∷ forall msg. Array (Html msg) -> Html msg
+colgroup_ = node "colgroup" []
 
-h2 ∷ forall msg. Html msg
-h2 = h "h2" (Map.empty) []
+command ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+command = node "command"
 
-h3 ∷ forall msg. Html msg
-h3 = h "h3" (Map.empty) []
+command_ ∷ forall msg. Array (Html msg) -> Html msg
+command_ = node "command" []
 
-h4 ∷ forall msg. Html msg
-h4 = h "h4" (Map.empty) []
+datalist ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+datalist = node "datalist"
 
-h5 ∷ forall msg. Html msg
-h5 = h "h5" (Map.empty) []
+datalist_ ∷ forall msg. Array (Html msg) -> Html msg
+datalist_ = node "datalist" []
 
-h6 ∷ forall msg. Html msg
-h6 = h "h6" (Map.empty) []
+dd ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+dd = node "dd"
 
-head ∷ forall msg. Html msg
-head = h "head" (Map.empty) []
+dd_ ∷ forall msg. Array (Html msg) -> Html msg
+dd_ = node "dd" []
 
-header ∷ forall msg. Html msg
-header = h "header" (Map.empty) []
+del ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+del = node "del"
 
-hr ∷ forall msg. Html msg
-hr = h "hr" (Map.empty) []
+del_ ∷ forall msg. Array (Html msg) -> Html msg
+del_ = node "del" []
 
-html ∷ forall msg. Html msg
-html = h "html" (Map.empty) []
+details ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+details = node "details"
 
-i ∷ forall msg. Html msg
-i = h "i" (Map.empty) []
+details_ ∷ forall msg. Array (Html msg) -> Html msg
+details_ = node "details" []
 
-iframe ∷ forall msg. Html msg
-iframe = h "iframe" (Map.empty) []
+dfn ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+dfn = node "dfn"
 
-img ∷ forall msg. Html msg
-img = h "img"  (Map.empty) []
+dfn_ ∷ forall msg. Array (Html msg) -> Html msg
+dfn_ = node "dfn" []
 
-input ∷ forall msg. Html msg
-input = h "input" (Map.empty) []
+dialog ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+dialog = node "dialog"
 
-ins ∷ forall msg. Html msg
-ins = h "ins" (Map.empty) []
+dialog_ ∷ forall msg. Array (Html msg) -> Html msg
+dialog_ = node "dialog" []
 
-kbd ∷ forall msg. Html msg
-kbd = h "kbd" (Map.empty) []
+dl ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+dl = node "dl"
 
-label ∷ forall msg. Html msg
-label = h "label" (Map.empty) []
+dl_ ∷ forall msg. Array (Html msg) -> Html msg
+dl_ = node "dl" []
 
+dt ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+dt = node "dt"
 
+dt_ ∷ forall msg. Array (Html msg) -> Html msg
+dt_ = node "dt" []
 
-link ∷ forall msg. Html msg
-link= h "link"  (Map.empty) []
+em ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+em = node "em"
 
-main ∷ forall msg. Html msg
-main = h "main" (Map.empty) []
+em_ ∷ forall msg. Array (Html msg) -> Html msg
+em_ = node "em" []
 
-map ∷ forall msg. Html msg
-map = h "map" (Map.empty) []
+embed ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+embed = node "embed"
 
-mark ∷ forall msg. Html msg
-mark = h "mark" (Map.empty) []
+embed_ ∷ forall msg. Array (Html msg) -> Html msg
+embed_ = node "embed" []
 
-menu ∷ forall msg. Html msg
-menu = h "menu" (Map.empty) []
+fieldset ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+fieldset = node "fieldset"
 
-menuitem ∷ forall msg. Html msg
-menuitem = h "menuitem" (Map.empty) []
+fieldset_ ∷ forall msg. Array (Html msg) -> Html msg
+fieldset_ = node "fieldset" []
 
-meta ∷ forall msg. Html msg
-meta = h "meta"  (Map.empty) []
+figcaption ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+figcaption = node "figcaption"
 
-meter ∷ forall msg. Html msg
-meter = h "meter" (Map.empty) []
+figcaption_ ∷ forall msg. Array (Html msg) -> Html msg
+figcaption_ = node "figcaption" []
 
-nav ∷ forall msg. Html msg
-nav = h "nav" (Map.empty) []
+figure ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+figure = node "figure"
 
-noscript ∷ forall msg. Html msg
-noscript = h "noscript" (Map.empty) []
+figure_ ∷ forall msg. Array (Html msg) -> Html msg
+figure_ = node "figure" []
 
-object ∷ forall msg. Html msg
-object = h "object" (Map.empty) []
+footer ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+footer = node "footer"
 
-ol ∷ forall msg. Html msg
-ol = h "ol" (Map.empty) []
+footer_ ∷ forall msg. Array (Html msg) -> Html msg
+footer_ = node "footer" []
 
-optgroup ∷ forall msg. Html msg
-optgroup = h "optgroup" (Map.empty) []
+form ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+form = node "form"
 
-option ∷ forall msg. Html msg
-option = h "option" (Map.empty) []
+form_ ∷ forall msg. Array (Html msg) -> Html msg
+form_ = node "form" []
 
-output ∷ forall msg. Html msg
-output = h "output" (Map.empty) []
+h2 ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+h2 = node "h2"
 
-p ∷ forall msg. Html msg
-p = h "p" (Map.empty) []
+h2_ ∷ forall msg. Array (Html msg) -> Html msg
+h2_ = node "h2" []
 
-param ∷ forall msg. Html msg
-param = h "param" (Map.empty) []
+h3 ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+h3 = node "h3"
 
-pre ∷ forall msg. Html msg
-pre = h "pre" (Map.empty) []
+h3_ ∷ forall msg. Array (Html msg) -> Html msg
+h3_ = node "h3" []
 
-progress ∷ forall msg. Html msg
-progress = h "progress" (Map.empty) []
+h4 ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+h4 = node "h4"
 
-q ∷ forall msg. Html msg
-q = h "q" (Map.empty) []
+h4_ ∷ forall msg. Array (Html msg) -> Html msg
+h4_ = node "h4" []
 
-rp ∷ forall msg. Html msg
-rp = h "rp" (Map.empty) []
+h5 ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+h5 = node "h5"
 
-rt ∷ forall msg. Html msg
-rt = h "rt" (Map.empty) []
+h5_ ∷ forall msg. Array (Html msg) -> Html msg
+h5_ = node "h5" []
 
-ruby ∷ forall msg. Html msg
-ruby = h "ruby" (Map.empty) []
+h6 ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+h6 = node "h6"
 
-samp ∷ forall msg. Html msg
-samp = h "samp" (Map.empty) []
+h6_ ∷ forall msg. Array (Html msg) -> Html msg
+h6_ = node "h6" []
 
-script ∷ forall msg. Html msg
-script = h "script" (Map.empty) []
+head ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+head = node "head"
 
-section ∷ forall msg. Html msg
-section = h "section" (Map.empty) []
+head_ ∷ forall msg. Array (Html msg) -> Html msg
+head_ = node "head" []
 
-select ∷ forall msg. Html msg
-select = h "select" (Map.empty) []
+header ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+header = node "header"
 
-small ∷ forall msg. Html msg
-small = h "small" (Map.empty) []
+header_ ∷ forall msg. Array (Html msg) -> Html msg
+header_ = node "header" []
 
-source ∷ forall msg. Html msg
-source = h "source" (Map.empty) []
+hr ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+hr = node "hr"
 
-span ∷ forall msg. Html msg
-span = h "span" (Map.empty) []
+hr_ ∷ forall msg. Array (Html msg) -> Html msg
+hr_ = node "hr" []
 
-strong ∷ forall msg. Html msg
-strong = h "strong" (Map.empty) []
+html ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+html = node "html"
 
-style ∷ forall msg. Html msg
-style = h "style" (Map.empty) []
+html_ ∷ forall msg. Array (Html msg) -> Html msg
+html_ = node "html" []
 
-sub ∷ forall msg. Html msg
-sub = h "sub" (Map.empty) []
+i ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+i = node "i"
 
-summary ∷ forall msg. Html msg
-summary = h "summary" (Map.empty) []
+i_ ∷ forall msg. Array (Html msg) -> Html msg
+i_ = node "i" []
 
-sup ∷ forall msg. Html msg
-sup = h "sup" (Map.empty) []
+iframe ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+iframe = node "iframe"
 
-table ∷ forall msg. Html msg
-table = h "table" (Map.empty) []
+iframe_ ∷ forall msg. Array (Html msg) -> Html msg
+iframe_ = node "iframe" []
 
-tbody ∷ forall msg. Html msg
-tbody = h "tbody" (Map.empty) []
+img ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+img = node "img"
 
-td ∷ forall msg. Html msg
-td = h "td" (Map.empty) []
+img_ ∷ forall msg. Array (Html msg) -> Html msg
+img_ = node "img" []
 
-textarea ∷ forall msg. Html msg
-textarea = h "textarea" (Map.empty) []
+input ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+input = node "input"
 
-tfoot ∷ forall msg. Html msg
-tfoot = h "tfoot" (Map.empty) []
+input_ ∷ forall msg. Array (Html msg) -> Html msg
+input_ = node "input" []
 
-th ∷ forall msg. Html msg
-th = h "th" (Map.empty) []
+ins ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+ins = node "ins"
 
-thead ∷ forall msg. Html msg
-thead = h "thead" (Map.empty) []
+ins_ ∷ forall msg. Array (Html msg) -> Html msg
+ins_ = node "ins" []
 
-time ∷ forall msg. Html msg
-time = h "time" (Map.empty) []
+kbd ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+kbd = node "kbd"
 
-title ∷ forall msg. Html msg
-title = h "title" (Map.empty) []
+kbd_ ∷ forall msg. Array (Html msg) -> Html msg
+kbd_ = node "kbd" []
 
-tr ∷ forall msg. Html msg
-tr = h "tr" (Map.empty) []
+label ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+label = node "label"
 
-u ∷ forall msg. Html msg
-u = h "u" (Map.empty) []
+label_ ∷ forall msg. Array (Html msg) -> Html msg
+label_ = node "label" []
 
+link ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+link= node "link"
 
-var ∷ forall msg. Html msg
-var = h "var" (Map.empty) []
+link_ ∷ forall msg. Array (Html msg) -> Html msg
+link_= node "link" []
 
-video ∷ forall msg. Html msg
-video = h "video" (Map.empty) []
+main ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+main = node "main"
+
+main_ ∷ forall msg. Array (Html msg) -> Html msg
+main_ = node "main" []
+
+map ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+map = node "map"
+
+map_ ∷ forall msg. Array (Html msg) -> Html msg
+map_ = node "map" []
+
+mark ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+mark = node "mark"
+
+mark_ ∷ forall msg. Array (Html msg) -> Html msg
+mark_ = node "mark" []
+
+menu ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+menu = node "menu"
+
+menu_ ∷ forall msg. Array (Html msg) -> Html msg
+menu_ = node "menu" []
+
+menuitem ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+menuitem = node "menuitem"
+
+menuitem_ ∷ forall msg. Array (Html msg) -> Html msg
+menuitem_ = node "menuitem" []
+
+meta ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+meta = node "meta"
+
+meta_ ∷ forall msg. Array (Html msg) -> Html msg
+meta_ = node "meta" []
+
+meter ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+meter = node "meter"
+
+meter_ ∷ forall msg. Array (Html msg) -> Html msg
+meter_ = node "meter" []
+
+nav ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+nav = node "nav"
+
+nav_ ∷ forall msg. Array (Html msg) -> Html msg
+nav_ = node "nav" []
+
+noscript ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+noscript = node "noscript"
+
+noscript_ ∷ forall msg. Array (Html msg) -> Html msg
+noscript_ = node "noscript" []
+
+object ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+object = node "object"
+
+object_ ∷ forall msg. Array (Html msg) -> Html msg
+object_ = node "object" []
+
+ol ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+ol = node "ol"
+
+ol_ ∷ forall msg. Array (Html msg) -> Html msg
+ol_ = node "ol" []
+
+optgroup ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+optgroup = node "optgroup"
+
+optgroup_ ∷ forall msg. Array (Html msg) -> Html msg
+optgroup_ = node "optgroup" []
+
+option ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+option = node "option"
+
+option_ ∷ forall msg. Array (Html msg) -> Html msg
+option_ = node "option" []
+
+output ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+output = node "output"
+
+output_ ∷ forall msg. Array (Html msg) -> Html msg
+output_ = node "output" []
+
+p ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+p = node "p"
+
+p_ ∷ forall msg. Array (Html msg) -> Html msg
+p_ = node "p" []
+
+param ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+param = node "param"
+
+param_ ∷ forall msg. Array (Html msg) -> Html msg
+param_ = node "param" []
+
+pre ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+pre = node "pre"
+
+pre_ ∷ forall msg. Array (Html msg) -> Html msg
+pre_ = node "pre" []
+
+progress ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+progress = node "progress"
+
+progress_ ∷ forall msg. Array (Html msg) -> Html msg
+progress_ = node "progress" []
+
+q ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+q = node "q"
+
+q_ ∷ forall msg. Array (Html msg) -> Html msg
+q_ = node "q" []
+
+rp ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+rp = node "rp"
+
+rp_ ∷ forall msg. Array (Html msg) -> Html msg
+rp_ = node "rp" []
+
+rt ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+rt = node "rt"
+
+rt_ ∷ forall msg. Array (Html msg) -> Html msg
+rt_ = node "rt" []
+
+ruby ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+ruby = node "ruby"
+
+ruby_ ∷ forall msg. Array (Html msg) -> Html msg
+ruby_ = node "ruby" []
+
+samp ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+samp = node "samp"
+
+samp_ ∷ forall msg. Array (Html msg) -> Html msg
+samp_ = node "samp" []
+
+script ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+script = node "script"
+
+script_ ∷ forall msg. Array (Html msg) -> Html msg
+script_ = node "script" []
+
+section ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+section = node "section"
+
+section_ ∷ forall msg. Array (Html msg) -> Html msg
+section_ = node "section" []
+
+select ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+select = node "select"
+
+select_ ∷ forall msg. Array (Html msg) -> Html msg
+select_ = node "select" []
+
+small ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+small = node "small"
+
+small_ ∷ forall msg. Array (Html msg) -> Html msg
+small_ = node "small" []
+
+source ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+source = node "source"
+
+source_ ∷ forall msg. Array (Html msg) -> Html msg
+source_ = node "source" []
+
+span ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+span = node "span"
+
+span_ ∷ forall msg. Array (Html msg) -> Html msg
+span_ = node "span" []
+
+strong ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+strong = node "strong"
+
+strong_ ∷ forall msg. Array (Html msg) -> Html msg
+strong_ = node "strong" []
+
+style ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+style = node "style"
+
+style_ ∷ forall msg. Array (Html msg) -> Html msg
+style_ = node "style" []
+
+sub ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+sub = node "sub"
+
+sub_ ∷ forall msg. Array (Html msg) -> Html msg
+sub_ = node "sub" []
+
+summary ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+summary = node "summary"
+
+summary_ ∷ forall msg. Array (Html msg) -> Html msg
+summary_ = node "summary" []
+
+sup ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+sup = node "sup"
+
+sup_ ∷ forall msg. Array (Html msg) -> Html msg
+sup_ = node "sup" []
+
+table ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+table = node "table"
+
+table_ ∷ forall msg. Array (Html msg) -> Html msg
+table_ = node "table" []
+
+tbody ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+tbody = node "tbody"
+
+tbody_ ∷ forall msg. Array (Html msg) -> Html msg
+tbody_ = node "tbody" []
+
+td ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+td = node "td"
+
+td_ ∷ forall msg. Array (Html msg) -> Html msg
+td_ = node "td" []
+
+textarea ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+textarea = node "textarea"
+
+textarea_ ∷ forall msg. Array (Html msg) -> Html msg
+textarea_ = node "textarea" []
+
+tfoot ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+tfoot = node "tfoot"
+
+tfoot_ ∷ forall msg. Array (Html msg) -> Html msg
+tfoot_ = node "tfoot" []
+
+th ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+th = node "th"
+
+th_ ∷ forall msg. Array (Html msg) -> Html msg
+th_ = node "th" []
+
+thead ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+thead = node "thead"
+
+thead_ ∷ forall msg. Array (Html msg) -> Html msg
+thead_ = node "thead" []
+
+time ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+time = node "time"
+
+time_ ∷ forall msg. Array (Html msg) -> Html msg
+time_ = node "time" []
+
+title ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+title = node "title"
+
+title_ ∷ forall msg. Array (Html msg) -> Html msg
+title_ = node "title" []
+
+tr ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+tr = node "tr"
+
+tr_ ∷ forall msg. Array (Html msg) -> Html msg
+tr_ = node "tr" []
+
+u ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+u = node "u"
+
+u_ ∷ forall msg. Array (Html msg) -> Html msg
+u_ = node "u" []
+
+var ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg
+var = node "var"
+
+var_ ∷ forall msg. Array (Html msg) -> Html msg
+var_ = node "var" []
+
+video ∷ forall msg. Array (Attribute msg) -> Array (Html msg) -> Html msg 
+video = node "video"
+
+video_ ∷ forall msg. Array (Html msg) -> Html msg 
+video_ = node "video" []

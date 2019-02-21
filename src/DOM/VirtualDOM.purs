@@ -45,9 +45,9 @@ mount nodeToMount app =  api.getElementById nodeToMount >>= Foldable.traverse_ (
 
 runApp :: forall msg model. App model msg -> Node -> Effect Unit
 runApp app nodeToMount = do
-  initModel <- Ref.new app.initialState
+  initModel <- Ref.new app.rootComponent.init
   let  {render} = app.rootComponent
-  let htmlToRender = (render app.initialState)
+  let htmlToRender = (render app.rootComponent.init)
   initHtml <- Ref.new htmlToRender
   let appState = {model: initModel, html: initHtml} 
   event <- Event.create 
